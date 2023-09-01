@@ -34,7 +34,7 @@ def author():
     :return: The GT username of the student  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: str  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
-    return "tb34"  # replace tb34 with your Georgia Tech username.  		  	   		  		 		  		  		    	 		 		   		 		  
+    return "alata6"  # replace tb34 with your Georgia Tech username.
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 def gtid():  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -42,7 +42,7 @@ def gtid():
     :return: The GT ID of the student  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: int  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
-    return 900897987  # replace with your GT ID number  		  	   		  		 		  		  		    	 		 		   		 		  
+    return 903952381  # replace with your GT ID number
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 def get_spin_result(win_prob):  		  	   		  		 		  		  		    	 		 		   		 		  
