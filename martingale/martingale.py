@@ -95,9 +95,9 @@ def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LI
         result_array[spin_number] = episode_winnings
         spin_number += 1
 
-    # if the target of $80 winnings is reached, stop betting, and allow the $80 value to persist from spin to spin
+    # if the target of $80 winnings is reached, stop betting, and use the value you obtained for the rest of the spins - https://edstem.org/us/courses/43166/discussion/3332273
     if episode_winnings >= episode_win_upper_limit:
-        result_array[spin_number:] = episode_win_upper_limit
+        result_array[spin_number:] = episode_winnings
 
     # once the player has lost all their money (i.e., episode_winnings reach -256), stop betting and fill that number (-256) forward
     if episode_winnings <= -bankroll:
