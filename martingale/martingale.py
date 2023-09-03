@@ -53,18 +53,32 @@ def get_spin_result(win_prob):
     :type win_prob: float  		  	   		  		 		  		  		    	 		 		   		 		  
     :return: The result of the spin.  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: bool  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
     result = False  		  	   		  		 		  		  		    	 		 		   		 		  
     if np.random.random() <= win_prob:  		  	   		  		 		  		  		    	 		 		   		 		  
         result = True  		  	   		  		 		  		  		    	 		 		   		 		  
-    return result  		  	   		  		 		  		  		    	 		 		   		 		  
+    return result
+
+# todo generate documentation comments
+def get_balance_and_next_bet_as_per_strategy(current_balance,current_bet,win_prob):
+    """
+        current strategy -> even money bet ->  if you bet N chips and win, you keep your N chips, and you win another N chips. If you bet N chips and you lose, then those N chips are lost
+        :param win_prob: The probability of winning
+        :type win_prob: float
+        :return: the resultant balance after the current spin, and the subsequent bet amount based on strategy
+        :rtype: tuple
+        """
+    if(get_spin_result(win_prob)):
+        return (current_balance+current_bet,1)
+    else:
+        return (current_balance-current_bet,current_bet*2)
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Method to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
     """
-    win_prob = win_prob = 9.0/19 # 18/38 - red, 18/38 - black
+    win_prob = win_prob = 9.0/19 # 18/38 pockets are red, 18/38 pockets are black on the American Roulette wheel
     np.random.seed(gtid())  # do this only once  		  	   		  		 		  		  		    	 		 		   		 		  
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		  		 		  		  		    	 		 		   		 		  
     # add your code here to implement the experiments  		  	   		  		 		  		  		    	 		 		   		 		  
