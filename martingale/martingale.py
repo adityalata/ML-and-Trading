@@ -86,10 +86,22 @@ def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LI
     bet_amount = 1
     spin_number = 1
 
+    # we continue betting until the episode spin count is not exceeded, the target episode win is not achieved, and wallet balance doesnt exceed bankroll
     while spin_number <= max_spins_per_episode and episode_winnings < episode_win_upper_limit and episode_winnings > -bankroll:
-        bet_amount = min(bet_amount, episode_winnings + bankroll) # important corner case to handle is the situation where the next bet should be $N, but you only have $M (where M<N)
-        episode_winnings, bet_amount = get_balance_and_next_bet_as_per_strategy(episode_winnings,bet_amount,win_prob)
-        spin_number+=1
+        # important corner case to handle is the situation where the next bet should be $N, but you only have $M (where M<N)
+        bet_amount = min(bet_amount, episode_winnings + bankroll)
+        episode_winnings, bet_amount = get_balance_and_next_bet_as_per_strategy(episode_winnings, bet_amount, win_prob)
+        spin_number += 1
+
+    # if the target of $80 winnings is reached, stop betting, and allow the $80 value to persist from spin to spin
+    if episode_winnings >= episode_win_upper_limit:
+        result_array[spin_number:] = episode_win_upper_limit
+
+    # once the player has lost all their money (i.e., episode_winnings reach -256), stop betting and fill that number (-256) forward
+    if episode_winnings <= -bankroll:
+        result_array[spin_number:] = -bankroll
+
+    return result_array
 
 def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
