@@ -28,10 +28,11 @@ GT ID: 903952381 (replace with your GT ID)
 
 import numpy as np
 import sys
+import matplotlib.pyplot as plt
 
 MAX_SPINS_PER_EPISODE = 1000
 EPISODE_WIN_UPPER_LIMIT = 80
-INFINITE_BANKROLL = sys.maxsize/2-1
+INFINITE_BANKROLL = int(sys.maxsize/2-1)  # alias for INT_MAX, safety value for bankroll as bets twice of this would not be safe to handle
 
 
 def author():
@@ -79,8 +80,7 @@ def get_balance_and_next_bet_as_per_strategy(current_winnings, current_bet, win_
         return (current_winnings - current_bet, current_bet * 2)
 
 
-def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LIMIT,
-                          max_spins_per_episode=MAX_SPINS_PER_EPISODE, bankroll=INFINITE_BANKROLL):
+def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LIMIT, max_spins_per_episode=MAX_SPINS_PER_EPISODE, bankroll=INFINITE_BANKROLL):
     # initializing episode params
     result_array = np.zeros(max_spins_per_episode + 1, dtype=np.int_)  # All winnings must be tracked by storing them in a NumPy array. You might call that array winnings where winnings[0] should be set to 0 (just before the first spin)
     episode_winnings = 0
@@ -109,19 +109,68 @@ def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LI
 def run_multiple_simulation_episodes(win_prob, number_of_simulations, episode_win_upper_limit=EPISODE_WIN_UPPER_LIMIT, max_spins_per_episode=MAX_SPINS_PER_EPISODE, bankroll=INFINITE_BANKROLL):
     episodes_result_array = np.zeros((number_of_simulations, max_spins_per_episode + 1), dtype=np.int_)  # All winnings must be tracked by storing them in a NumPy array. You might call that array winnings where winnings[0] should be set to 0 (just before the first spin)
     for simulation_number in range(number_of_simulations):
-        episodes_result_array[simulation_number] = bet_episode_simulator(win_prob, episode_win_upper_limit, max_spins_per_episode, bankroll)
+        episodes_result_array[simulation_number] = bet_episode_simulator(win_prob, episode_win_upper_limit=episode_win_upper_limit, max_spins_per_episode=max_spins_per_episode, bankroll=bankroll)
     return episodes_result_array
+
+
+def produce_chart_number(win_prob, figure_number, figure_title, number_of_simulations=1, bankroll=INFINITE_BANKROLL, legend_position='lower right'):
+    """
+        General functionality for all plots
+    """
+
+    plt.figure(figure_number)
+    plt.axis([0, 300, -256, 100])  # horizontal (X) axis must range from 0 to 300, the vertical (Y) axis must range from –256 to +100
+    plt.xlabel('Spins/Bet Number per Episode')
+    plt.ylabel('Total Episode Earnings in USD')
+    plt.title(figure_title)
+
+    if figure_number == 1:
+        for i in range(number_of_simulations):
+            plt.plot(bet_episode_simulator(win_prob), label='Run {}'.format(i))
+        plt.legend(loc=legend_position, shadow=True, fontsize='medium')
+    elif figure_number == 2 or figure_number == 4:
+        episodes_result_array = run_multiple_simulation_episodes(win_prob, number_of_simulations, bankroll=bankroll)
+        mean_winnings_for_spins = np.mean(episodes_result_array, axis=0)  # calculate for each spin
+        std_winnings_for_spins = np.std(episodes_result_array, axis=0)
+        std_plus = mean_winnings_for_spins + std_winnings_for_spins
+        std_minus = mean_winnings_for_spins - std_winnings_for_spins
+        add_std_dev_legend(mean_winnings_for_spins, std_plus, std_minus, 'Mean', legend_position)
+    elif figure_number == 3 or figure_number == 5:
+        episodes_result_array = run_multiple_simulation_episodes(win_prob, number_of_simulations, bankroll=bankroll)
+        median_winnings_for_spins = np.median(episodes_result_array, axis=0)  # calculate for each spin
+        std_winnings_for_spins = np.std(episodes_result_array, axis=0)
+        std_plus = median_winnings_for_spins + std_winnings_for_spins
+        std_minus = median_winnings_for_spins - std_winnings_for_spins
+        add_std_dev_legend(median_winnings_for_spins, std_plus, std_minus, 'Median', legend_position)
+
+    plt.savefig('Figure_{}.png'.format(figure_number))
+    plt.close(figure_number)
+
+
+def add_std_dev_legend(central_line, std_plus_line, std_minus_line, chart_label, legend_position='lower right'):
+    """
+        Shared functionality for plots that require a central tendency legend
+    """
+    plt.plot(central_line, label=chart_label)
+    plt.plot(std_plus_line, label='{} + Std'.format(chart_label))
+    plt.plot(std_minus_line, label='{} - Std'.format(chart_label))
+    plt.legend(loc=legend_position, shadow=True, fontsize='medium')
 
 
 def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Method to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
     """
-    win_prob = win_prob = 9.0/19 # 18/38 pockets are red, 18/38 pockets are black on the American Roulette wheel
+    win_prob = win_prob = 9.0 / 19  # 18/38 pockets are red, 18/38 pockets are black on the American Roulette wheel
     np.random.seed(gtid())  # do this only once  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(get_spin_result(win_prob))  # test the roulette spin  		  	   		  		 		  		  		    	 		 		   		 		  
+    # print(get_spin_result(win_prob))  # test the roulette spin
     # add your code here to implement the experiments
-    run_multiple_simulation_episodes(win_prob, 2, bankroll=256)
+    # run_multiple_simulation_episodes(win_prob, 2, bankroll=256)
+    produce_chart_number(win_prob, 1, "10 episodes w/o bankroll", number_of_simulations=10)
+    produce_chart_number(win_prob, 2, "1000 episodes w/o bankroll and mean", number_of_simulations=1000)
+    produce_chart_number(win_prob, 3, "1000 episodes w/o bankroll and median", number_of_simulations=1000)
+    produce_chart_number(win_prob, 4, "1000 episodes with bankroll and mean", bankroll=256, number_of_simulations=1000)
+    produce_chart_number(win_prob, 5, "1000 episodes with bankroll and median", bankroll=256, number_of_simulations=1000)
 
 
 if __name__ == "__main__":
