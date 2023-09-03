@@ -63,8 +63,8 @@ def get_spin_result(win_prob):
 def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Method to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
-    win_prob = 0.60  # set appropriately to the probability of a win  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
+    win_prob = win_prob = 9.0/19 # 18/38 - red, 18/38 - black
     np.random.seed(gtid())  # do this only once  		  	   		  		 		  		  		    	 		 		   		 		  
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		  		 		  		  		    	 		 		   		 		  
     # add your code here to implement the experiments  		  	   		  		 		  		  		    	 		 		   		 		  
