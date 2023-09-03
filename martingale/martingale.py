@@ -1,4 +1,4 @@
-""""""  		  	   		  		 		  		  		    	 		 		   		 		  
+""""""
 """Assess a betting strategy.  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 Copyright 2018, Georgia Institute of Technology (Georgia Tech)  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -24,28 +24,33 @@ GT honor code violation.
 Student Name: Aditya Lata (replace with your name)  		  	   		  		 		  		  		    	 		 		   		 		  
 GT User ID: alata6 (replace with your User ID)  		  	   		  		 		  		  		    	 		 		   		 		  
 GT ID: 903952381 (replace with your GT ID)  		  	   		  		 		  		  		    	 		 		   		 		  
-"""  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-def author():  		  	   		  		 		  		  		    	 		 		   		 		  
+"""
+
+import numpy as np
+import sys
+
+MAX_SPINS_PER_EPISODE = 1000
+EPISODE_WIN_UPPER_LIMIT = 80
+INFINITE_BANKROLL = sys.maxsize/2-1
+
+
+def author():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     :return: The GT username of the student  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: str  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
     return "alata6"  # replace tb34 with your Georgia Tech username.
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-def gtid():  		  	   		  		 		  		  		    	 		 		   		 		  
+
+
+def gtid():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     :return: The GT ID of the student  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: int  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
     return 903952381  # replace with your GT ID number
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-def get_spin_result(win_prob):  		  	   		  		 		  		  		    	 		 		   		 		  
+
+
+def get_spin_result(win_prob):
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Given a win probability between 0 and 1, the function returns whether the probability will result in a win.  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -54,12 +59,11 @@ def get_spin_result(win_prob):
     :return: The result of the spin.  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: bool  		  	   		  		 		  		  		    	 		 		   		 		  
     """
-    result = False  		  	   		  		 		  		  		    	 		 		   		 		  
-    if np.random.random() <= win_prob:  		  	   		  		 		  		  		    	 		 		   		 		  
-        result = True  		  	   		  		 		  		  		    	 		 		   		 		  
+    result = False
+    if np.random.random() <= win_prob:
+        result = True
     return result
 
-# todo generate documentation comments
 def get_balance_and_next_bet_as_per_strategy(current_balance,current_bet,win_prob):
     """
         current strategy -> even money bet ->  if you bet N chips and win, you keep your N chips, and you win another N chips. If you bet N chips and you lose, then those N chips are lost
@@ -72,9 +76,22 @@ def get_balance_and_next_bet_as_per_strategy(current_balance,current_bet,win_pro
         return (current_balance+current_bet,1)
     else:
         return (current_balance-current_bet,current_bet*2)
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
+
+
+def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LIMIT,
+                          max_spins_per_episode=MAX_SPINS_PER_EPISODE, bankroll=INFINITE_BANKROLL):
+    # initializing episode params
+    result_array = np.zeros(max_spins_per_episode, dtype=np.int_)
+    episode_winnings = 0
+    bet_amount = 1
+    spin_number = 1
+
+    while spin_number <= max_spins_per_episode and episode_winnings < episode_win_upper_limit and episode_winnings > -bankroll:
+        bet_amount = min(bet_amount, episode_winnings + bankroll) # important corner case to handle is the situation where the next bet should be $N, but you only have $M (where M<N)
+        episode_winnings, bet_amount = get_balance_and_next_bet_as_per_strategy(episode_winnings,bet_amount,win_prob)
+        spin_number+=1
+
+def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Method to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
     """
@@ -82,7 +99,7 @@ def test_code():
     np.random.seed(gtid())  # do this only once  		  	   		  		 		  		  		    	 		 		   		 		  
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		  		 		  		  		    	 		 		   		 		  
     # add your code here to implement the experiments  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
-    test_code()  		  	   		  		 		  		  		    	 		 		   		 		  
+
+
+if __name__ == "__main__":
+    test_code()
