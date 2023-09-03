@@ -64,33 +64,35 @@ def get_spin_result(win_prob):
         result = True
     return result
 
-def get_balance_and_next_bet_as_per_strategy(current_balance,current_bet,win_prob):
+
+def get_balance_and_next_bet_as_per_strategy(current_winnings, current_bet, win_prob):
     """
         current strategy -> even money bet ->  if you bet N chips and win, you keep your N chips, and you win another N chips. If you bet N chips and you lose, then those N chips are lost
         :param win_prob: The probability of winning
         :type win_prob: float
-        :return: the resultant balance after the current spin, and the subsequent bet amount based on strategy
+        :return: the resultant winnings after the current spin, and the subsequent bet amount based on strategy
         :rtype: tuple
         """
-    if(get_spin_result(win_prob)):
-        return (current_balance+current_bet,1)
+    if (get_spin_result(win_prob)):
+        return (current_winnings + current_bet, 1)
     else:
-        return (current_balance-current_bet,current_bet*2)
+        return (current_winnings - current_bet, current_bet * 2)
 
 
 def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LIMIT,
                           max_spins_per_episode=MAX_SPINS_PER_EPISODE, bankroll=INFINITE_BANKROLL):
     # initializing episode params
-    result_array = np.zeros(max_spins_per_episode, dtype=np.int_)
+    result_array = np.zeros(max_spins_per_episode + 1, dtype=np.int_)  # All winnings must be tracked by storing them in a NumPy array. You might call that array winnings where winnings[0] should be set to 0 (just before the first spin)
     episode_winnings = 0
     bet_amount = 1
     spin_number = 1
 
-    # we continue betting until the episode spin count is not exceeded, the target episode win is not achieved, and wallet balance doesnt exceed bankroll
+    # we continue betting until the episode spin count is not exceeded, the target episode win is not achieved, and wallet balance doesn't exceed bankroll
     while spin_number <= max_spins_per_episode and episode_winnings < episode_win_upper_limit and episode_winnings > -bankroll:
         # important corner case to handle is the situation where the next bet should be $N, but you only have $M (where M<N)
         bet_amount = min(bet_amount, episode_winnings + bankroll)
         episode_winnings, bet_amount = get_balance_and_next_bet_as_per_strategy(episode_winnings, bet_amount, win_prob)
+        result_array[spin_number] = episode_winnings
         spin_number += 1
 
     # if the target of $80 winnings is reached, stop betting, and allow the $80 value to persist from spin to spin
@@ -103,6 +105,14 @@ def bet_episode_simulator(win_prob, episode_win_upper_limit=EPISODE_WIN_UPPER_LI
 
     return result_array
 
+
+def run_multiple_simulation_episodes(win_prob, number_of_simulations, episode_win_upper_limit=EPISODE_WIN_UPPER_LIMIT, max_spins_per_episode=MAX_SPINS_PER_EPISODE, bankroll=INFINITE_BANKROLL):
+    episodes_result_array = np.zeros((number_of_simulations, max_spins_per_episode + 1), dtype=np.int_)  # All winnings must be tracked by storing them in a NumPy array. You might call that array winnings where winnings[0] should be set to 0 (just before the first spin)
+    for simulation_number in range(number_of_simulations):
+        episodes_result_array[simulation_number] = bet_episode_simulator(win_prob, episode_win_upper_limit, max_spins_per_episode, bankroll)
+    return episodes_result_array
+
+
 def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Method to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -110,7 +120,8 @@ def test_code():
     win_prob = win_prob = 9.0/19 # 18/38 pockets are red, 18/38 pockets are black on the American Roulette wheel
     np.random.seed(gtid())  # do this only once  		  	   		  		 		  		  		    	 		 		   		 		  
     print(get_spin_result(win_prob))  # test the roulette spin  		  	   		  		 		  		  		    	 		 		   		 		  
-    # add your code here to implement the experiments  		  	   		  		 		  		  		    	 		 		   		 		  
+    # add your code here to implement the experiments
+    run_multiple_simulation_episodes(win_prob, 2, bankroll=256)
 
 
 if __name__ == "__main__":
