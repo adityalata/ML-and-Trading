@@ -131,7 +131,7 @@ def produce_chart_number(win_prob, figure_number, figure_title, number_of_simula
     elif figure_number == 2 or figure_number == 4:
         episodes_result_array = run_multiple_simulation_episodes(win_prob, number_of_simulations, bankroll=bankroll)
         mean_winnings_for_spins = np.mean(episodes_result_array, axis=0)  # calculate for each spin
-        std_winnings_for_spins = np.std(episodes_result_array, axis=0)
+        std_winnings_for_spins = np.std(episodes_result_array, axis=0, ddof=1)  # population standard deviation -> ddof=1 provides an unbiased estimator of the variance of the infinite population
         std_plus = mean_winnings_for_spins + std_winnings_for_spins
         std_minus = mean_winnings_for_spins - std_winnings_for_spins
         add_std_dev_legend(mean_winnings_for_spins, std_plus, std_minus, 'Mean', legend_position)
