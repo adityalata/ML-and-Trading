@@ -5,26 +5,55 @@ Atlanta, Georgia 30332-0415
 All Rights Reserved  		  	   		  		 		  		  		    	 		 		   		 		  
 """  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-import datetime as dt  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-import pandas as pd  		  	   		  		 		  		  		    	 		 		   		 		  
-from util import get_data, plot_data  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-# This is the function that will be tested by the autograder  		  	   		  		 		  		  		    	 		 		   		 		  
-# The student must update this code to properly implement the functionality  		  	   		  		 		  		  		    	 		 		   		 		  
-def assess_portfolio(  		  	   		  		 		  		  		    	 		 		   		 		  
-    sd=dt.datetime(2008, 1, 1),  		  	   		  		 		  		  		    	 		 		   		 		  
-    ed=dt.datetime(2009, 1, 1),  		  	   		  		 		  		  		    	 		 		   		 		  
-    syms=["GOOG", "AAPL", "GLD", "XOM"],  		  	   		  		 		  		  		    	 		 		   		 		  
-    allocs=[0.1, 0.2, 0.3, 0.4],  		  	   		  		 		  		  		    	 		 		   		 		  
-    sv=1000000,  		  	   		  		 		  		  		    	 		 		   		 		  
-    rfr=0.0,  		  	   		  		 		  		  		    	 		 		   		 		  
-    sf=252.0,  		  	   		  		 		  		  		    	 		 		   		 		  
-    gen_plot=False,  		  	   		  		 		  		  		    	 		 		   		 		  
-):  		  	   		  		 		  		  		    	 		 		   		 		  
+import datetime as dt
+import math
+
+import numpy as np
+
+import pandas as pd
+from util import get_data, plot_data
+
+
+# This is the function that will be tested by the autograder
+# The student must update this code to properly implement the functionality
+
+def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investment, risk_free_return, sample_frequency):
+    """
+    generate_portfolio_stats
+    :param initial_investment:
+    :param portfolio_prices:
+    :param allocations_list:
+    :param risk_free_return:
+    :param sample_frequency:
+    :return: A tuple containing the cumulative return, average daily returns,
+        standard deviation of daily returns, Sharpe ratio, daily Portfolio Valuation
+    """
+    normed_portfolio_prices = portfolio_prices.copy()
+    normed_portfolio_prices /= portfolio_prices.iloc[0]
+    alloced_normed_portfolio_prices = normed_portfolio_prices * allocations_list
+    portfolio_position_values = alloced_normed_portfolio_prices * initial_investment
+    portfolio_valuation = portfolio_position_values.sum(axis=1)
+
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pct_change.html
+    daily_returns = (portfolio_valuation.pct_change()).iloc[1:]  # since daily ret cant be defined for 1st day
+    cumulative_return = (portfolio_valuation[-1] / portfolio_valuation[0] - 1)
+    avg_daily_return = daily_returns.mean()
+    std_daily_return = daily_returns.std()
+    portfolio_return_diff_rfr = avg_daily_return-risk_free_return
+
+    sharpe_ratio = math.sqrt(sample_frequency) * portfolio_return_diff_rfr / std_daily_return
+    return cumulative_return, avg_daily_return, std_daily_return, sharpe_ratio, portfolio_valuation
+
+def assess_portfolio(
+    sd=dt.datetime(2008, 1, 1),
+    ed=dt.datetime(2009, 1, 1),
+    syms=["GOOG", "AAPL", "GLD", "XOM"],
+    allocs=[0.1, 0.2, 0.3, 0.4],
+    sv=1000000,
+    rfr=0.0,
+    sf=252.0,
+    gen_plot=False,
+):
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Estimate a set of test points given the model we built.  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -48,39 +77,46 @@ def assess_portfolio(
     :return: A tuple containing the cumulative return, average daily returns,  		  	   		  		 		  		  		    	 		 		   		 		  
         standard deviation of daily returns, Sharpe ratio and end value  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: tuple  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Read in adjusted closing prices for given symbols, date range  		  	   		  		 		  		  		    	 		 		   		 		  
-    dates = pd.date_range(sd, ed)  		  	   		  		 		  		  		    	 		 		   		 		  
-    prices_all = get_data(syms, dates)  # automatically adds SPY  		  	   		  		 		  		  		    	 		 		   		 		  
-    prices = prices_all[syms]  # only portfolio symbols  		  	   		  		 		  		  		    	 		 		   		 		  
-    prices_SPY = prices_all["SPY"]  # only SPY, for comparison later  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Get daily portfolio value  		  	   		  		 		  		  		    	 		 		   		 		  
-    port_val = prices_SPY  # add code here to compute daily portfolio values  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Get portfolio statistics (note: std_daily_ret = volatility)  		  	   		  		 		  		  		    	 		 		   		 		  
-    cr, adr, sddr, sr = [  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.25,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.001,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.0005,  		  	   		  		 		  		  		    	 		 		   		 		  
-        2.1,  		  	   		  		 		  		  		    	 		 		   		 		  
-    ]  # add code here to compute stats  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Compare daily portfolio value with SPY using a normalized plot  		  	   		  		 		  		  		    	 		 		   		 		  
-    if gen_plot:  		  	   		  		 		  		  		    	 		 		   		 		  
-        # add code to plot here  		  	   		  		 		  		  		    	 		 		   		 		  
-        df_temp = pd.concat(  		  	   		  		 		  		  		    	 		 		   		 		  
-            [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1  		  	   		  		 		  		  		    	 		 		   		 		  
-        )  		  	   		  		 		  		  		    	 		 		   		 		  
-        pass  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Add code here to properly compute end value  		  	   		  		 		  		  		    	 		 		   		 		  
-    ev = sv  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    return cr, adr, sddr, sr, ev  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
+
+    # Read in adjusted closing prices for given symbols, date range
+    dates = pd.date_range(sd, ed)
+    prices_all = get_data(syms, dates)  # automatically adds SPY
+    portfolio_prices = prices_all[syms]  # only portfolio symbols
+    prices_SPY = prices_all["SPY"]  # only SPY, for comparison later
+
+    # Get daily portfolio value
+    # Get portfolio statistics (note: std_daily_ret = volatility)
+    # add code here to compute stats portfolio_prices, allocations_list, initial_investment, risk_free_return, sample_frequency)
+    cr, adr, sddr, sr, port_val = generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocs,
+                                                           initial_investment=sv, risk_free_return=rfr,
+                                                           sample_frequency=sf)
+
+    # Compare daily portfolio value with SPY using a normalized plot
+    if gen_plot:
+        # add code to plot here
+        df_temp = pd.concat(
+            [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1
+        )
+        save_plot_data(df_temp)
+
+    # Add code here to properly compute end value
+    ev = port_val[-1]
+
+    return cr, adr, sddr, sr, ev
+
+
+def save_plot_data(df, title="Stock prices", xlabel="Date", ylabel="Price",figure_number=1):
+    import matplotlib.pyplot as plt
+
+    """Plot stock prices with a custom title and meaningful axis labels."""
+    plt.figure(figure_number)
+    ax = df.plot(title=title, fontsize=12)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    plt.savefig('images/Figure_{}.png'.format(figure_number))
+    plt.close(figure_number)
+
 def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Performs a test of your code and prints the results  		  	   		  		 		  		  		    	 		 		   		 		  
