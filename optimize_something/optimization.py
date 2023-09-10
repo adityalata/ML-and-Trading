@@ -43,10 +43,10 @@ from util import get_data
 # The student must update this code to properly implement the functionality  		  	   		  		 		  		  		    	 		 		   		 		  
 def get_optimal_allocations(portfolio_prices, portfolio_size):
     """
-
-    :param portfolio_prices:
-    :param portfolio_size:
-    :return:
+    get_optimal_allocations
+    :param portfolio_prices: dataframe with prices for only the securities in portfolio between start and end date
+    :param portfolio_size: number of securities in the portfolio
+    :return: optimal allocation values for the given securities in portfolio
     """
     initial_guess = np.asarray([1.0 / portfolio_size] * portfolio_size)
     # reference : https://saturncloud.io/blog/scipyoptimizeminimize-slsqp-a-guide-to-handling-bounds-and-constraints/#calling-slsqp-with-bounds-and-constraints
@@ -62,7 +62,7 @@ def get_optimal_allocations(portfolio_prices, portfolio_size):
 
 
 def get_sharpe_ratio(allocations_list, portfolio_prices):
-    # we want to use a minimize optimizer, for a portfolio return maximization objective, thus * -1
+    # we are using a minimize optimizer, but we want to maximise the risk adjusted return for the portfolio, thus objective function = sharpe ratio * -1
     return generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)[-2] * -1
 
 
@@ -107,9 +107,8 @@ def optimize_portfolio(
     portfolio_prices = prices_all[syms]  # only portfolio symbols
     prices_SPY = prices_all["SPY"]  # only SPY, for comparison later
   		  	   		  		 		  		  		    	 		 		   		 		  
-    # find the allocations for the optimal portfolio  		  	   		  		 		  		  		    	 		 		   		 		  
-    # note that the values here ARE NOT meant to be correct for a test case  		  	   		  		 		  		  		    	 		 		   		 		  
-    allocs = get_optimal_allocations(portfolio_prices=portfolio_prices,portfolio_size=len(syms))
+    # find the allocations for the optimal portfolio
+    allocs = get_optimal_allocations(portfolio_prices=portfolio_prices, portfolio_size=len(syms))
     cr, adr, sddr, sr, port_val = generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocs)
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -119,7 +118,7 @@ def optimize_portfolio(
         df_temp = pd.concat(  		  	   		  		 		  		  		    	 		 		   		 		  
             [port_val, normed_spy], keys=["Portfolio", "SPY"], axis=1
         )  		  	   		  		 		  		  		    	 		 		   		 		  
-        save_plot_data(df_temp)
+        save_plot_data(df_temp, title="daily normalized Portfolio v/s SPY value - alata6", ylabel="Normalized Price/s")
   		  	   		  		 		  		  		    	 		 		   		 		  
     return allocs, cr, adr, sddr, sr  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -152,7 +151,7 @@ def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investm
     return cumulative_return, avg_daily_return, std_daily_return, sharpe_ratio, portfolio_valuation
 
 
-def save_plot_data(df, title="Stock prices", xlabel="Date", ylabel="Price", figure_number=1):
+def save_plot_data(df, title="Stock prices", xlabel="Date/s", ylabel="Price/s", figure_number=1):
     import matplotlib.pyplot as plt
 
     """Plot stock prices with a custom title and meaningful axis labels."""
@@ -160,6 +159,7 @@ def save_plot_data(df, title="Stock prices", xlabel="Date", ylabel="Price", figu
     ax = df.plot(title=title, fontsize=12)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
+    plt.grid(color='green', linestyle='--', linewidth=0.5)
     plt.savefig('images/Figure_{}.png'.format(figure_number))
     plt.close(figure_number)
 
