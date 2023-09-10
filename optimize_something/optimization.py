@@ -107,9 +107,10 @@ def optimize_portfolio(
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		  		 		  		  		    	 		 		   		 		  
     if gen_plot:  		  	   		  		 		  		  		    	 		 		   		 		  
-        # add code to plot here  		  	   		  		 		  		  		    	 		 		   		 		  
+        # add code to plot here
+        normed_spy = prices_SPY/prices_SPY.iloc[0]
         df_temp = pd.concat(  		  	   		  		 		  		  		    	 		 		   		 		  
-            [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1  		  	   		  		 		  		  		    	 		 		   		 		  
+            [port_val, normed_spy], keys=["Portfolio", "SPY"], axis=1
         )  		  	   		  		 		  		  		    	 		 		   		 		  
         save_plot_data(df_temp)
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -128,8 +129,7 @@ def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investm
     :return: A tuple containing the cumulative return, average daily returns,
         standard deviation of daily returns, Sharpe ratio, daily Portfolio Valuation
     """
-    normed_portfolio_prices = portfolio_prices.copy()
-    normed_portfolio_prices /= portfolio_prices.iloc[0]
+    normed_portfolio_prices = portfolio_prices/portfolio_prices.iloc[0]
     alloced_normed_portfolio_prices = normed_portfolio_prices * allocations_list
     portfolio_position_values = alloced_normed_portfolio_prices * initial_investment
     portfolio_valuation = portfolio_position_values.sum(axis=1)

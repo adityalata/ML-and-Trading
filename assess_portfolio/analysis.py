@@ -28,8 +28,7 @@ def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investm
     :return: A tuple containing the cumulative return, average daily returns,
         standard deviation of daily returns, Sharpe ratio, daily Portfolio Valuation
     """
-    normed_portfolio_prices = portfolio_prices.copy()
-    normed_portfolio_prices /= portfolio_prices.iloc[0]
+    normed_portfolio_prices = portfolio_prices/portfolio_prices.iloc[0]
     alloced_normed_portfolio_prices = normed_portfolio_prices * allocations_list
     portfolio_position_values = alloced_normed_portfolio_prices * initial_investment
     portfolio_valuation = portfolio_position_values.sum(axis=1)
