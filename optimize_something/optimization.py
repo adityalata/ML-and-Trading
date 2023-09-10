@@ -122,7 +122,6 @@ def optimize_portfolio(
   		  	   		  		 		  		  		    	 		 		   		 		  
     return allocs, cr, adr, sddr, sr  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
 
 def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investment=1, risk_free_return=0, sample_frequency=252):
     """
@@ -132,6 +131,7 @@ def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investm
     :param allocations_list:
     :param risk_free_return: default 0 based on Dr. B's comments in video
     :param sample_frequency: default 252 for number of trading days in a year for SPY
+    Assume 252 trading days in a year and a risk-free return of 0.0 per day.
     :return: A tuple containing the cumulative return, average daily returns,
         standard deviation of daily returns, Sharpe ratio, daily Portfolio Valuation
     """
@@ -160,7 +160,7 @@ def save_plot_data(df, title="Stock prices", xlabel="Date/s", ylabel="Price/s", 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     plt.grid(color='green', linestyle='--', linewidth=0.5)
-    plt.savefig('images/Figure_{}.png'.format(figure_number))
+    plt.savefig('images/Figure{}.png'.format(figure_number))
     plt.close(figure_number)
 
 
