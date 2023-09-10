@@ -56,16 +56,14 @@ def get_optimal_allocations(portfolio_prices, portfolio_size):
         args=portfolio_prices,
         method='SLSQP',
         bounds=[(0, 1)] * portfolio_size,
-        constraints={'type': 'eq', 'fun': lambda allocations: 1.0 - np.sum(allocations)},
-        options={'disp': True}
+        constraints={'type': 'eq', 'fun': lambda allocations: 1.0 - np.sum(allocations)}
     )
     return optimization_result.x
 
 
 def get_sharpe_ratio(allocations_list, portfolio_prices):
     # we want to use a minimize optimizer, for a portfolio return maximization objective, thus * -1
-    sr= generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)[-2] * -1
-    return sr
+    return generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)[-2] * -1
 
 
 def fill_missing_values(df_data):
@@ -105,11 +103,9 @@ def optimize_portfolio(
     # Read in adjusted closing prices for given symbols, date range  		  	   		  		 		  		  		    	 		 		   		 		  
     dates = pd.date_range(sd, ed)  		  	   		  		 		  		  		    	 		 		   		 		  
     prices_all = get_data(syms, dates)  # automatically adds SPY  		  	   		  		 		  		  		    	 		 		   		 		  
+    fill_missing_values(prices_all)
     portfolio_prices = prices_all[syms]  # only portfolio symbols
     prices_SPY = prices_all["SPY"]  # only SPY, for comparison later
-
-    fill_missing_values(portfolio_prices)
-    fill_missing_values(prices_SPY)
   		  	   		  		 		  		  		    	 		 		   		 		  
     # find the allocations for the optimal portfolio  		  	   		  		 		  		  		    	 		 		   		 		  
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		  		 		  		  		    	 		 		   		 		  
