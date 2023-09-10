@@ -56,14 +56,16 @@ def get_optimal_allocations(portfolio_prices, portfolio_size):
         args=portfolio_prices,
         method='SLSQP',
         bounds=[(0, 1)] * portfolio_size,
-        constraints={'type': 'eq', 'fun': lambda allocations: 1.0 - np.sum(allocations)}
+        constraints={'type': 'eq', 'fun': lambda allocations: 1.0 - np.sum(allocations)},
+        options={'disp': True}
     )
     return optimization_result.x
 
 
 def get_sharpe_ratio(allocations_list, portfolio_prices):
     # we want to use a minimize optimizer, for a portfolio return maximization objective, thus * -1
-    return generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)[-2] * -1
+    sr= generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)[-2] * -1
+    return sr
 
 
 def fill_missing_values(df_data):
@@ -169,12 +171,12 @@ def save_plot_data(df, title="Stock prices", xlabel="Date", ylabel="Price", figu
 def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     This function WILL NOT be called by the auto grader.  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    start_date = dt.datetime(2009, 1, 1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    end_date = dt.datetime(2010, 1, 1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
+
+    start_date = dt.datetime(2008, 6, 1)
+    end_date = dt.datetime(2009, 6, 1)
+    symbols = ['IBM', 'X', 'GLD', 'JPM']
+
     # Assess the portfolio  		  	   		  		 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		  		 		  		  		    	 		 		   		 		  
         sd=start_date, ed=end_date, syms=symbols, gen_plot=True
