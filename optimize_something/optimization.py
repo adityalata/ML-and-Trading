@@ -35,12 +35,36 @@ import numpy as np
   		  	   		  		 		  		  		    	 		 		   		 		  
 
 import pandas as pd  		  	   		  		 		  		  		    	 		 		   		 		  
-from util import get_data, plot_data  		  	   		  		 		  		  		    	 		 		   		 		  
+from util import get_data, plot_data
+import scipy.optimize as spo
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 # This is the function that will be tested by the autograder  		  	   		  		 		  		  		    	 		 		   		 		  
 # The student must update this code to properly implement the functionality  		  	   		  		 		  		  		    	 		 		   		 		  
-def optimize_portfolio(  		  	   		  		 		  		  		    	 		 		   		 		  
+def get_optimal_allocations(portfolio_prices, portfolio_size):
+    """
+
+    :param portfolio_prices:
+    :param portfolio_size:
+    :return:
+    """
+    initial_guess = np.asarray([1.0 / portfolio_size] * portfolio_size)
+    # reference : https://saturncloud.io/blog/scipyoptimizeminimize-slsqp-a-guide-to-handling-bounds-and-constraints/#calling-slsqp-with-bounds-and-constraints
+    optimization_result = spo.minimize(
+        fun=get_sharpe_ratio,
+        x0=initial_guess,
+        args=portfolio_prices,
+        method='SLSQP',
+        bounds=[(0, 1)] * portfolio_size,
+        constraints={'type': 'eq', 'fun': lambda allocations: 1.0 - np.sum(allocations)}
+    )
+    return optimization_result.x
+
+def get_sharpe_ratio(allocations_list,portfolio_prices):
+    # todo get only sr
+    generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)
+
+def optimize_portfolio(
     sd=dt.datetime(2008, 1, 1),  		  	   		  		 		  		  		    	 		 		   		 		  
     ed=dt.datetime(2009, 1, 1),  		  	   		  		 		  		  		    	 		 		   		 		  
     syms=["GOOG", "AAPL", "GLD", "XOM"],  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -71,15 +95,13 @@ def optimize_portfolio(
     # Read in adjusted closing prices for given symbols, date range  		  	   		  		 		  		  		    	 		 		   		 		  
     dates = pd.date_range(sd, ed)  		  	   		  		 		  		  		    	 		 		   		 		  
     prices_all = get_data(syms, dates)  # automatically adds SPY  		  	   		  		 		  		  		    	 		 		   		 		  
-    prices = prices_all[syms]  # only portfolio symbols  		  	   		  		 		  		  		    	 		 		   		 		  
+    portfolio_prices = prices_all[syms]  # only portfolio symbols
     prices_SPY = prices_all["SPY"]  # only SPY, for comparison later  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
     # find the allocations for the optimal portfolio  		  	   		  		 		  		  		    	 		 		   		 		  
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		  		 		  		  		    	 		 		   		 		  
-    allocs = np.asarray(  		  	   		  		 		  		  		    	 		 		   		 		  
-        [0.2, 0.2, 0.3, 0.3]  		  	   		  		 		  		  		    	 		 		   		 		  
-    )  # todo add code here to find the allocations
-    cr, adr, sddr, sr, port_val = generate_portfolio_stats(portfolio_prices=prices, allocations_list=allocs)
+    allocs = get_optimal_allocations(portfolio_prices=portfolio_prices,portfolio_size=len(syms))
+    cr, adr, sddr, sr, port_val = generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocs)
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		  		 		  		  		    	 		 		   		 		  
     if gen_plot:  		  	   		  		 		  		  		    	 		 		   		 		  
