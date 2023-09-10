@@ -34,9 +34,9 @@ import datetime as dt
 import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 
-import pandas as pd  		  	   		  		 		  		  		    	 		 		   		 		  
-from util import get_data, plot_data
+import pandas as pd
 import scipy.optimize as spo
+from util import get_data, plot_data
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 # This is the function that will be tested by the autograder  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -60,9 +60,11 @@ def get_optimal_allocations(portfolio_prices, portfolio_size):
     )
     return optimization_result.x
 
-def get_sharpe_ratio(allocations_list,portfolio_prices):
-    # todo get only sr
-    generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)
+
+def get_sharpe_ratio(allocations_list, portfolio_prices):
+    # we want to use a minimize optimizer, for a portfolio return maximization objective, thus * -1
+    return generate_portfolio_stats(portfolio_prices=portfolio_prices, allocations_list=allocations_list)[-2] * -1
+
 
 def optimize_portfolio(
     sd=dt.datetime(2008, 1, 1),  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -153,14 +155,15 @@ def test_code():
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Assess the portfolio  		  	   		  		 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		  		 		  		  		    	 		 		   		 		  
-        sd=start_date, ed=end_date, syms=symbols, gen_plot=False  		  	   		  		 		  		  		    	 		 		   		 		  
+        sd=start_date, ed=end_date, syms=symbols, gen_plot=True
     )  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Print statistics  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"Start Date: {start_date}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"End Date: {end_date}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"Symbols: {symbols}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Allocations:{allocations}")  		  	   		  		 		  		  		    	 		 		   		 		  
+    print(f"Allocations:{allocations}")
+    print(f"Allocations Sum:{np.sum(allocations)}")
     print(f"Sharpe Ratio: {sr}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"Volatility (stdev of daily returns): {sddr}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"Average Daily Return: {adr}")  		  	   		  		 		  		  		    	 		 		   		 		  
