@@ -36,9 +36,9 @@ import numpy as np
 
 import pandas as pd
 import scipy.optimize as spo
-from util import get_data, plot_data
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
+from util import get_data
+
+
 # This is the function that will be tested by the autograder  		  	   		  		 		  		  		    	 		 		   		 		  
 # The student must update this code to properly implement the functionality  		  	   		  		 		  		  		    	 		 		   		 		  
 def get_optimal_allocations(portfolio_prices, portfolio_size):
@@ -111,7 +111,7 @@ def optimize_portfolio(
         df_temp = pd.concat(  		  	   		  		 		  		  		    	 		 		   		 		  
             [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1  		  	   		  		 		  		  		    	 		 		   		 		  
         )  		  	   		  		 		  		  		    	 		 		   		 		  
-        plot_data(df_temp)
+        save_plot_data(df_temp)
   		  	   		  		 		  		  		    	 		 		   		 		  
     return allocs, cr, adr, sddr, sr  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -143,6 +143,19 @@ def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investm
 
     sharpe_ratio = math.sqrt(sample_frequency) * portfolio_return_diff_rfr / std_daily_return
     return cumulative_return, avg_daily_return, std_daily_return, sharpe_ratio, portfolio_valuation
+
+
+def save_plot_data(df, title="Stock prices", xlabel="Date", ylabel="Price", figure_number=1):
+    import matplotlib.pyplot as plt
+
+    """Plot stock prices with a custom title and meaningful axis labels."""
+    plt.figure(figure_number)
+    ax = df.plot(title=title, fontsize=12)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    plt.savefig('images/Figure_{}.png'.format(figure_number))
+    plt.close(figure_number)
+
 
 def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
