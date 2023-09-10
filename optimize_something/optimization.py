@@ -1,4 +1,6 @@
-""""""  		  	   		  		 		  		  		    	 		 		   		 		  
+""""""
+import math
+
 """MC1-P2: Optimize a portfolio.  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 Copyright 2018, Georgia Institute of Technology (Georgia Tech)  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -31,7 +33,7 @@ import datetime as dt
   		  	   		  		 		  		  		    	 		 		   		 		  
 import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-import matplotlib.pyplot as plt  		  	   		  		 		  		  		    	 		 		   		 		  
+
 import pandas as pd  		  	   		  		 		  		  		    	 		 		   		 		  
 from util import get_data, plot_data  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -76,16 +78,8 @@ def optimize_portfolio(
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		  		 		  		  		    	 		 		   		 		  
     allocs = np.asarray(  		  	   		  		 		  		  		    	 		 		   		 		  
         [0.2, 0.2, 0.3, 0.3]  		  	   		  		 		  		  		    	 		 		   		 		  
-    )  # add code here to find the allocations  		  	   		  		 		  		  		    	 		 		   		 		  
-    cr, adr, sddr, sr = [  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.25,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.001,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.0005,  		  	   		  		 		  		  		    	 		 		   		 		  
-        2.1,  		  	   		  		 		  		  		    	 		 		   		 		  
-    ]  # add code here to compute stats  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Get daily portfolio value  		  	   		  		 		  		  		    	 		 		   		 		  
-    port_val = prices_SPY  # add code here to compute daily portfolio values  		  	   		  		 		  		  		    	 		 		   		 		  
+    )  # todo add code here to find the allocations
+    cr, adr, sddr, sr, port_val = generate_portfolio_stats(portfolio_prices=prices, allocations_list=allocs)
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		  		 		  		  		    	 		 		   		 		  
     if gen_plot:  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -93,12 +87,40 @@ def optimize_portfolio(
         df_temp = pd.concat(  		  	   		  		 		  		  		    	 		 		   		 		  
             [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1  		  	   		  		 		  		  		    	 		 		   		 		  
         )  		  	   		  		 		  		  		    	 		 		   		 		  
-        pass  		  	   		  		 		  		  		    	 		 		   		 		  
+        plot_data(df_temp)
   		  	   		  		 		  		  		    	 		 		   		 		  
     return allocs, cr, adr, sddr, sr  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
+
+def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investment=1, risk_free_return=0, sample_frequency=252):
+    """
+    generate_portfolio_stats
+    :param initial_investment: default 1, if we just want stats, then since it's a constant, it would not affect
+    :param portfolio_prices:
+    :param allocations_list:
+    :param risk_free_return: default 0 based on Dr. B's comments in video
+    :param sample_frequency: default 252 for number of trading days in a year for SPY
+    :return: A tuple containing the cumulative return, average daily returns,
+        standard deviation of daily returns, Sharpe ratio, daily Portfolio Valuation
+    """
+    normed_portfolio_prices = portfolio_prices.copy()
+    normed_portfolio_prices /= portfolio_prices.iloc[0]
+    alloced_normed_portfolio_prices = normed_portfolio_prices * allocations_list
+    portfolio_position_values = alloced_normed_portfolio_prices * initial_investment
+    portfolio_valuation = portfolio_position_values.sum(axis=1)
+
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pct_change.html
+    daily_returns = (portfolio_valuation.pct_change()).iloc[1:]  # since daily ret cant be defined for 1st day
+    cumulative_return = (portfolio_valuation[-1] / portfolio_valuation[0] - 1)
+    avg_daily_return = daily_returns.mean()
+    std_daily_return = daily_returns.std()
+    portfolio_return_diff_rfr = avg_daily_return-risk_free_return
+
+    sharpe_ratio = math.sqrt(sample_frequency) * portfolio_return_diff_rfr / std_daily_return
+    return cumulative_return, avg_daily_return, std_daily_return, sharpe_ratio, portfolio_valuation
+
+def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     This function WILL NOT be called by the auto grader.  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
