@@ -123,10 +123,10 @@ class DTLearner(object):
         :return:
         """
         node = self.decision_tree[node_index]
-        feature_index = int(node[0])  # split_factor
-        if feature_index is None:  # reached leaf node
+        if node[0] is None:  # reached leaf node
             return node[1]  # Y value
-        elif point[feature_index] <= node[1]:  # traverse left subtree since value of point at feature index is LTE to the split value
+        feature_index = int(node[0])  # split_factor
+        if point[feature_index] <= node[1]:  # traverse left subtree since value of point at feature index is LTE to the split value
             return self.traverse_decision_tree(node_index + int(node[2]), point)
         else:  # traverse right subtree since value of point at feature index is GT to the split value
             return self.traverse_decision_tree(node_index + int(node[3]), point)
