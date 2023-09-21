@@ -20,6 +20,7 @@ class BagLearner(object):
             learners.append(learner(**kwargs))
         self.learners = learners
         self.boost = boost
+        self.bag_count = bags
         np.random.seed(self.gtid())  # todo check
 
     def author(self):
@@ -66,7 +67,12 @@ class BagLearner(object):
         :return: The predicted result of the input data according to the trained model
         :rtype: numpy.ndarray
         """
-        #         todo impl
+        each_learner_outputs = np.zeros(shape=self.bag_count)
+        prediction_number = 0
+        for learner in self.learners:
+            each_learner_outputs[prediction_number] = learner.query(points)
+            prediction_number += 1
+        return np.mean(each_learner_outputs)
 
 
 if __name__ == "__main__":
