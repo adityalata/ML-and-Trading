@@ -32,6 +32,7 @@ import LinRegLearner as lrl
 import DTLearner as dt
 import RTLearner as rt
 import BagLearner as bl
+import InsaneLearner as il
   		  	   		  		 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -158,6 +159,35 @@ if __name__ == "__main__":
     print('Bag Learner')
 
     learner = bl.BagLearner()  # defaults to 20 DTLearners with leaf size of 1
+    learner.add_evidence(train_x, train_y)
+
+    # evaluate in-sample
+    pred_y = learner.query(train_x)
+    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+
+    print()
+    print('In-sample results')
+    print('RMSE: {}'.format(rmse))
+
+    c = np.corrcoef(pred_y, y=train_y)
+
+    print('Corr: {}'.format(c[0, 1]))
+
+    # evaluate out-of-sample
+    pred_y = learner.query(test_x)
+    rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+
+    print()
+    print('Out-of-sample results')
+    print('RMSE: {}'.format(rmse))
+
+    c = np.corrcoef(pred_y, y=test_y)
+
+    print('Corr: {}'.format(c[0, 1]))
+    print("====================================================================")
+    print('Insane Learner')
+
+    learner = il.InsaneLearner()  # defaults to DTLearner with leaf size of 1
     learner.add_evidence(train_x, train_y)
 
     # evaluate in-sample
