@@ -45,7 +45,17 @@ class BagLearner(object):
         :param data_y: The value we are attempting to predict given the X data
         :type data_y: numpy.ndarray
         """
-    #     todo impl
+        data = np.column_stack((data_x, data_y))   # Stack 1-D arrays as columns into a 2-D array.
+        number_elements = data.shape[0]  # amount of training data
+
+        for learner in self.learners:  # todo handle case where learner is not defined
+            bag = np.empty(shape=(0, data.shape[1]))
+
+            for _ in range(number_elements):  # todo verify if floor * 0.6 req
+                index = np.random.randint(0, number_elements)  # sample with replacement
+                bag = np.row_stack((bag, data[index]))  # Stack arrays in sequence vertically (row wise).
+
+            learner.add_evidence(bag[:, 0:-1], bag[:, -1])  # training each learner
 
     def query(self, points):
         """
