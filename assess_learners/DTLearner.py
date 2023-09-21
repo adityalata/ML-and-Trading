@@ -105,7 +105,34 @@ class DTLearner(object):
         :return: The predicted result of the input data according to the trained model
         :rtype: numpy.ndarray
         """
-        #         todo impl
+        predicted_results = np.zeros(points.shape[0])
+        for point in points:
+            predicted_results.append(self.traverse_decision_tree(0, point))  #  start traversing trained Decision Tree from root - index 0
+        return np.array(predicted_results)
+
+    #
+    def traverse_decision_tree(self, node_index, point):
+        """
+        Decision tree's Internal nodes are represented as follows:
+        [ split_factor , split_value, left node (offset from current node), right node (offset from current node) ]
+        Decision tree's Leaf nodes are represented as follows :
+        [ None(since no split at leaf node), Y value(leaf value), NaN(no edge), NaN(no edge) ]
+
+        :param node_index:
+        :param point:
+        :return:
+        """
+        node = self.decision_tree[node_index]
+
+        if node[0] is None:  # reached leaf node
+            return node[1]
+
+        feature_index = int(node[0])
+
+        if point[feature_index] <= node[1]:  # traverse left subtree since value of point at feature index is LTE to the split value
+            return self.traverse_decision_tree(node_index + int(node[2]), point)
+        else:  # traverse right subtree since value of point at feature index is GT to the split value
+            return self.traverse_decision_tree(node_index + int(node[3]), point)
 
 
 if __name__ == "__main__":
