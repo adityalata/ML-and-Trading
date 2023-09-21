@@ -29,6 +29,7 @@ import sys
 import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 import LinRegLearner as lrl
+import DTLearner as dt
   		  	   		  		 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -68,7 +69,9 @@ if __name__ == "__main__":
     print(f"{test_x.shape}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"{test_y.shape}")  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-    # create a learner and train it  		  	   		  		 		  		  		    	 		 		   		 		  
+    # create a learner and train it
+    print("====================================================================")
+    print("Lin Reg Learner")
     learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner  		  	   		  		 		  		  		    	 		 		   		 		  
     learner.add_evidence(train_x, train_y)  # train it  		  	   		  		 		  		  		    	 		 		   		 		  
     print(learner.author())  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -89,4 +92,34 @@ if __name__ == "__main__":
     print("Out of sample results")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"RMSE: {rmse}")  		  	   		  		 		  		  		    	 		 		   		 		  
     c = np.corrcoef(pred_y, y=test_y)  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"corr: {c[0,1]}")  		  	   		  		 		  		  		    	 		 		   		 		  
+    print(f"corr: {c[0,1]}")  	
+    print("====================================================================")
+    print('Decision Tree Learner')
+
+    learner = dt.DTLearner()
+    learner.add_evidence(train_x, train_y)
+
+    # evaluate in-sample
+    pred_y = learner.query(train_x)
+    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+
+    print()
+    print('In-sample results')
+    print('RMSE: {}'.format(rmse))
+
+    c = np.corrcoef(pred_y, y=train_y)
+
+    print('Corr: {}'.format(c[0,1]))
+
+    # evaluate out-of-sample
+    pred_y = learner.query(test_x)
+    rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+
+    print()
+    print('Out-of-sample results')
+    print('RMSE: {}'.format(rmse))
+
+    c = np.corrcoef(pred_y, y=test_y)
+
+    print('Corr: {}'.format(c[0, 1]))
+    print("====================================================================")
