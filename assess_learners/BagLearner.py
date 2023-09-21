@@ -1,5 +1,5 @@
 import numpy as np
-
+import DTLearner as dt
 
 class BagLearner(object):
     """
@@ -10,12 +10,16 @@ class BagLearner(object):
     :type verbose: bool
     """
 
-    def __init__(self, leaf_size=1, verbose=False):
+    def __init__(self, learner=dt.DTLearner, kwargs={'leaf_size': 1}, bags=20, boost=False, verbose=False):
         """
         Constructor method
         """
         self.verbose = verbose
-        self.leaf_size = leaf_size  # move along, these aren't the drones you're looking for
+        learners = []
+        for i in range(0, bags):
+            learners.append(learner(**kwargs))
+        self.learners = learners
+        self.boost = boost
 
     def author(self):
         """
