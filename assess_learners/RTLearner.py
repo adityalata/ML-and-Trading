@@ -1,5 +1,5 @@
 import numpy as np
-
+import DTLearner as dl
 
 class RTLearner(object):
     """
@@ -14,8 +14,9 @@ class RTLearner(object):
         """
         Constructor method
         """
+        self.decision_tree = None
         self.verbose = verbose
-        self.leaf_size = leaf_size  # move along, these aren't the drones you're looking for
+        self.leaf_size = leaf_size
 
     def author(self):
         """
@@ -33,7 +34,52 @@ class RTLearner(object):
         :param data_y: The value we are attempting to predict given the X data
         :type data_y: numpy.ndarray
         """
-    #     todo impl
+        data = np.column_stack((data_x, data_y))  # Stack 1-D arrays as columns into a 2-D array.
+        self.decision_tree = self.recursively_build_tree(data)
+
+    def recursively_build_tree(self, data):
+        """
+        Recursively builds and returns root of the tree
+
+        Decision tree's Internal nodes are represented as follows:
+        [ split_factor , split_value, left node (offset from current node), right node (offset from current node) ]
+        Decision tree's Leaf nodes are represented as follows :
+        [ None(since no split at leaf node), Y value(leaf value), NaN(no edge), NaN(no edge) ]
+        The None keyword is used to define a null value, or no value at all.
+        np.nan (Not a Number) allows for vectorized operations; it's a float value, while None, by definition, forces object type
+
+        :param data: A set of feature values used to train the learner appended with The value we are attempting to predict
+        :type data: numpy.ndarray
+        :return: root of the tree
+        """
+        number_elements = data.shape[0]  # todo safety if number_elements=0
+        if (number_elements == 1) or (
+                np.unique(data[:, -1]).size == 1):  # base case : only 1 training data or all items have same Y value
+            return np.array([[None, data[0, -1], np.nan, np.nan]])
+
+        elif number_elements <= self.leaf_size:  # When the tree is constructed recursively, if there are leaf_size or fewer elements at the time of the recursive call, the data should be aggregated into a leaf
+            return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
+
+        else:
+            random_feature_index = np.random.randint(0, data.shape[1] - 1)  #  the choice of feature to split on should be made randomly
+            split_val = np.median(data[:, random_feature_index])  # pick a random feature then split on the median value of that feature
+
+            left_subtree = data[data[:, random_feature_index] <= split_val]  # feature values LTE to the split_value
+            right_subtree = data[data[:, random_feature_index] > split_val]  # feature values GT the split_value
+
+            #  todo check if this case can actually occur
+            #  ideally all values to one side of median implies all Y are same thus should have caught above
+            if left_subtree.shape[0] == number_elements or right_subtree.shape[0] == number_elements:
+                if self.verbose:
+                    print("All items on one side of median")
+                return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
+
+            left_tree = self.recursively_build_tree(left_subtree)
+            right_tree = self.recursively_build_tree(right_subtree)
+
+            root_node = np.array(
+                [[random_feature_index, split_val, 1, left_tree.shape[0] + 1]])  # using 1 since we only need offset
+            return np.row_stack((root_node, left_tree, right_tree))  # Stack arrays in sequence vertically (row wise).
 
     def query(self, points):
         """
