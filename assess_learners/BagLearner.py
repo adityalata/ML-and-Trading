@@ -20,6 +20,7 @@ class BagLearner(object):
             learners.append(learner(**kwargs))
         self.learners = learners
         self.boost = boost
+        np.random.seed(self.gtid())  # todo check
 
     def author(self):
         """
@@ -27,6 +28,13 @@ class BagLearner(object):
         :rtype: str
         """
         return "alata6"  # replace tb34 with your Georgia Tech username
+
+    def gtid(self):
+        """
+        :return: The GT ID of the student
+        :rtype: int
+        """
+        return 903952381  # replace with your GT ID number
 
     def add_evidence(self, data_x, data_y):
         """
