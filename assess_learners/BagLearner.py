@@ -52,7 +52,7 @@ class BagLearner(object):
         for learner in self.learners:  # todo handle case where learner is not defined
             bag = np.empty(shape=(0, data.shape[1]))
 
-            for _ in range(number_elements):  # todo verify if floor * 0.6 req
+            for _ in range(number_elements):  # If the training set contains n data items, each bag should contain n items as well.
                 index = np.random.randint(0, number_elements)  # sample with replacement
                 bag = np.row_stack((bag, data[index]))  # Stack arrays in sequence vertically (row wise).
 
@@ -70,7 +70,7 @@ class BagLearner(object):
         each_learner_outputs = []
         for learner in self.learners:
             each_learner_outputs.append(learner.query(points))
-        return np.mean(each_learner_outputs, axis=0)
+        return np.mean(np.array(each_learner_outputs), axis=0)
 
 
 if __name__ == "__main__":
