@@ -55,32 +55,31 @@ class DTLearner(object):
         :return: root of the tree
         """
         # todo safety for empty input
-        if (data_x.shape[0] == 1) or (np.unique(data_y).size == 1):  #  base case : only 1 training data or all items have same Y value
+        if (data_x.shape[0] == 1) or (np.unique(data_y).size == 1):  # base case : only 1 training data or all items have same Y value
             return np.array([[None, data_y[0], np.nan, np.nan]])
 
-        elif data.shape[0] <= self.leaf_size:  #  When the tree is constructed recursively, if there are leaf_size or fewer elements at the time of the recursive call, the data should be aggregated into a leaf
+        elif data_x.shape[0] <= self.leaf_size:  # When the tree is constructed recursively, if there are leaf_size or fewer elements at the time of the recursive call, the data should be aggregated into a leaf
             return np.array([[None, np.mean(data_y), np.nan, np.nan]])
 
         else:
             feature_index = self.determine_best_feature(data_x, data_y)
-            split_val = np.median(data_x[:, feature_index])  #  todo check if pop median req
+            split_val = np.median(data_x[:, feature_index])  # todo check if pop median req
 
-            left_subtree = data_x[data_x[:, feature_index] <= split_val]  #  feature values LTE to the split_value
-            right_subtree = data_x[data_x[:, feature_index] > split_val]  #  feature values GT the split_value
+            left_subtree = data_x[data_x[:, feature_index] <= split_val]  # feature values LTE to the split_value
+            right_subtree = data_x[data_x[:, feature_index] > split_val]  # feature values GT the split_value
 
             #  todo check if this case can actually occur
             #  ideally all values to one side of median implies all Y are same thus should have caught above
-            if left_subtree.shape[0] == data.shape[0] or right_subtree.shape[0] == data.shape[0]:
+            if left_subtree.shape[0] == data_x.shape[0] or right_subtree.shape[0] == data_x.shape[0]:
                 if self.verbose:
                     print("All items on one side of median")
                 return np.array([[None, np.mean(data_y), np.nan, np.nan]])
 
-            left_tree = self.build_tree(left_subtree)
-            right_tree = self.build_tree(right_subtree)
+            left_tree = self.recursively_build_tree(left_subtree)
+            right_tree = self.recursively_build_tree(right_subtree)
 
             root_node = np.array([[feature_index, split_val, 1, left_tree.shape[0] + 1]])
-
-            return np.row_stack((root_node, left_tree, right_tree))  #  Stack arrays in sequence vertically (row wise).
+            return np.row_stack((root_node, left_tree, right_tree))  # Stack arrays in sequence vertically (row wise).
 
     #
     def determine_best_feature(self, data_x, data_y):
@@ -106,8 +105,8 @@ class DTLearner(object):
         :rtype: numpy.ndarray
         """
         predicted_results = np.zeros(points.shape[0])
-        for point in points:
-            predicted_results.append(self.traverse_decision_tree(0, point))  #  start traversing trained Decision Tree from root - index 0
+        for i in range(points.shape[0]):
+            predicted_results[i] = (self.traverse_decision_tree(0, points[i, :]))  # start traversing trained Decision Tree from root - index 0
         return np.array(predicted_results)
 
     #
