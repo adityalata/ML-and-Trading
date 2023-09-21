@@ -67,12 +67,10 @@ class BagLearner(object):
         :return: The predicted result of the input data according to the trained model
         :rtype: numpy.ndarray
         """
-        each_learner_outputs = np.zeros(shape=self.bag_count)
-        prediction_number = 0
+        each_learner_outputs = []
         for learner in self.learners:
-            each_learner_outputs[prediction_number] = learner.query(points)
-            prediction_number += 1
-        return np.mean(each_learner_outputs)
+            each_learner_outputs.append(learner.query(points))
+        return np.mean(each_learner_outputs, axis=0)
 
 
 if __name__ == "__main__":
