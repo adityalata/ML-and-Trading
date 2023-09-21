@@ -35,9 +35,10 @@ class DTLearner(object):
         :param data_y: The value we are attempting to predict given the X data
         :type data_y: numpy.ndarray
         """
-        self.decision_tree = self.recursively_build_tree(data_x, data_y)
+        data = np.column_stack((data_x, data_y))  # Stack 1-D arrays as columns into a 2-D array.
+        self.decision_tree = self.recursively_build_tree(data)
 
-    def recursively_build_tree(self, data_x, data_y):
+    def recursively_build_tree(self, data):
         """
         Recursively builds and returns root of the tree
 
@@ -48,49 +49,49 @@ class DTLearner(object):
         The None keyword is used to define a null value, or no value at all.
         np.nan (Not a Number) allows for vectorized operations; it's a float value, while None, by definition, forces object type
 
-        :param data_x: A set of feature values used to train the learner
-        :type data_x: numpy.ndarray
-        :param data_y: The value we are attempting to predict given the X data
-        :type data_y: numpy.ndarray
+        :param data: A set of feature values used to train the learner appended with The value we are attempting to predict
+        :type data: numpy.ndarray
         :return: root of the tree
         """
-        # todo safety for empty input
-        if (data_x.shape[0] == 1) or (np.unique(data_y).size == 1):  # base case : only 1 training data or all items have same Y value
-            return np.array([[None, data_y[0], np.nan, np.nan]])
+        number_elements = data.shape[0]  # todo safety if number_elements=0
+        if (number_elements == 1) or (np.unique(data[:, -1]).size == 1):  # base case : only 1 training data or all items have same Y value
+            return np.array([[None, data[0, -1], np.nan, np.nan]])
 
-        elif data_x.shape[0] <= self.leaf_size:  # When the tree is constructed recursively, if there are leaf_size or fewer elements at the time of the recursive call, the data should be aggregated into a leaf
-            return np.array([[None, np.mean(data_y), np.nan, np.nan]])
+        elif number_elements <= self.leaf_size:  # When the tree is constructed recursively, if there are leaf_size or fewer elements at the time of the recursive call, the data should be aggregated into a leaf
+            return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
 
         else:
-            feature_index = self.determine_best_feature(data_x, data_y)
-            split_val = np.median(data_x[:, feature_index])  # todo check if pop median req
+            feature_index = self.determine_best_feature(data)
+            split_val = np.median(data[:, feature_index])  # todo check if pop median req
 
-            left_subtree = data_x[data_x[:, feature_index] <= split_val]  # feature values LTE to the split_value
-            right_subtree = data_x[data_x[:, feature_index] > split_val]  # feature values GT the split_value
+            left_subtree = data[data[:, feature_index] <= split_val]  # feature values LTE to the split_value
+            right_subtree = data[data[:, feature_index] > split_val]  # feature values GT the split_value
 
             #  todo check if this case can actually occur
             #  ideally all values to one side of median implies all Y are same thus should have caught above
-            if left_subtree.shape[0] == data_x.shape[0] or right_subtree.shape[0] == data_x.shape[0]:
+            if left_subtree.shape[0] == number_elements or right_subtree.shape[0] == number_elements:
                 if self.verbose:
                     print("All items on one side of median")
-                return np.array([[None, np.mean(data_y), np.nan, np.nan]])
+                return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
 
             left_tree = self.recursively_build_tree(left_subtree)
             right_tree = self.recursively_build_tree(right_subtree)
 
-            root_node = np.array([[feature_index, split_val, 1, left_tree.shape[0] + 1]])
+            root_node = np.array([[feature_index, split_val, 1, left_tree.shape[0] + 1]])  # using 1 since we only need offset
             return np.row_stack((root_node, left_tree, right_tree))  # Stack arrays in sequence vertically (row wise).
 
     #
-    def determine_best_feature(self, data_x, data_y):
+    def determine_best_feature(self, data):
         """
             Finds the best feature to split on and returns its column index
             We define “best feature to split on” as the feature (Xi) that has the highest absolute value correlation with Y
         """
-        feature_correlations = np.zeros(data_x.shape[1])
+        data_y = data[:, -1]
+        number_features = data.shape[1] - 1
+        feature_correlations = np.zeros(number_features)
 
-        for i in range(data_x.shape[1]):
-            correlation, _ = pearsonr(data_x[:, i], data_y)  # returns tuple of Pearson correlation coefficient and p-value for testing non-correlation
+        for i in range(number_features):
+            correlation, _ = pearsonr(data[:, i], data_y)  # returns tuple of Pearson correlation coefficient and p-value for testing non-correlation
             feature_correlations[i] = abs(correlation)
 
         return np.argmax(feature_correlations)  # Returns the indices of the maximum values along an axis.
