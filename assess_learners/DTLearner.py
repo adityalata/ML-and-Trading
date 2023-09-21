@@ -24,23 +24,23 @@ class DTLearner(object):
         """
         return "alata6"  # replace tb34 with your Georgia Tech username
 
-    def add_evidence(self, Xtrain, Ytrain):
+    def add_evidence(self, data_x, data_y):
         """
         Add training data to learner
 
-        :param Xtrain: A set of feature values used to train the learner
-        :type Xtrain: numpy.ndarray
-        :param Ytrain: The value we are attempting to predict given the X data
-        :type Ytrain: numpy.ndarray
+        :param data_x: A set of feature values used to train the learner
+        :type data_x: numpy.ndarray
+        :param data_y: The value we are attempting to predict given the X data
+        :type data_y: numpy.ndarray
         """
     #     todo impl
 
-    def query(self, Xtest):
+    def query(self, points):
         """
         Estimate a set of test points given the model we built.
 
-        :param Xtest: A numpy array with each row corresponding to a specific query.
-        :type Xtest: numpy.ndarray
+        :param points: A numpy array with each row corresponding to a specific query.
+        :type points: numpy.ndarray
         :return: The predicted result of the input data according to the trained model
         :rtype: numpy.ndarray
         """
