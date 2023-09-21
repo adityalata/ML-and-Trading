@@ -15,6 +15,7 @@ class DTLearner(object):
         """
         Constructor method
         """
+        self.decision_tree = None
         self.verbose = verbose
         self.leaf_size = leaf_size
 
@@ -33,6 +34,12 @@ class DTLearner(object):
         :type data_x: numpy.ndarray
         :param data_y: The value we are attempting to predict given the X data
         :type data_y: numpy.ndarray
+        """
+        self.decision_tree = self.recursively_build_tree(data_x, data_y)
+
+    def recursively_build_tree(self, data_x, data_y):
+        """
+        Recursively builds and returns root of the tree
 
         Decision tree's Internal nodes are represented as follows:
         [ split_factor , split_value, left node (offset from current node), right node (offset from current node) ]
@@ -40,6 +47,12 @@ class DTLearner(object):
         [ None(since no split at leaf node), Y value(leaf value), NaN(no edge), NaN(no edge) ]
         The None keyword is used to define a null value, or no value at all.
         np.nan (Not a Number) allows for vectorized operations; it's a float value, while None, by definition, forces object type
+
+        :param data_x: A set of feature values used to train the learner
+        :type data_x: numpy.ndarray
+        :param data_y: The value we are attempting to predict given the X data
+        :type data_y: numpy.ndarray
+        :return: root of the tree
         """
         # todo safety for empty input
         if (data_x.shape[0] == 1) or (np.unique(data_y).size == 1):  #  base case : only 1 training data or all items have same Y value
