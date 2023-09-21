@@ -28,16 +28,32 @@ import sys
   		  	   		  		 		  		  		    	 		 		   		 		  
 import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-import LinRegLearner as lrl  		  	   		  		 		  		  		    	 		 		   		 		  
+import LinRegLearner as lrl
   		  	   		  		 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		  		 		  		  		    	 		 		   		 		  
         print("Usage: python testlearner.py <filename>")  		  	   		  		 		  		  		    	 		 		   		 		  
-        sys.exit(1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    inf = open(sys.argv[1])  		  	   		  		 		  		  		    	 		 		   		 		  
-    data = np.array(  		  	   		  		 		  		  		    	 		 		   		 		  
-        [list(map(float, s.strip().split(","))) for s in inf.readlines()]  		  	   		  		 		  		  		    	 		 		   		 		  
-    )  		  	   		  		 		  		  		    	 		 		   		 		  
+        sys.exit(1)
+    print("sys.argv[1] : ", sys.argv[1])
+    if sys.argv[1].__contains__("Istanbul"):
+        print("Cleaning Istanbul.csv")
+        inf = open(sys.argv[1])
+        rawdata = inf.readlines()
+        rawRows = len(rawdata)
+        rawCols = len(rawdata[0].strip().split(","))
+        print("len rawdata", rawRows, " rawcols ", rawCols)
+        data = np.zeros((rawRows-1, rawCols-1), dtype=float)
+        print(" filteredData.shape ", data.shape)
+        for rowCount in range(1, rawRows):
+            columns = rawdata[rowCount].strip().split(",")
+            # print("rowCount ", rowCount, " columns ", columns)
+            data[rowCount-1, :] = columns[1:]
+        print("filteredData ", data)
+    else:
+        inf = open(sys.argv[1])
+        data = np.array(
+            [list(map(float, s.strip().split(","))) for s in inf.readlines()]
+        )
   		  	   		  		 		  		  		    	 		 		   		 		  
     # compute how much of the data is training and testing  		  	   		  		 		  		  		    	 		 		   		 		  
     train_rows = int(0.6 * data.shape[0])  		  	   		  		 		  		  		    	 		 		   		 		  
