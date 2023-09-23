@@ -87,15 +87,15 @@ class DTLearner(object):
             Finds the best feature to split on and returns its column index
             We define “best feature to split on” as the feature (Xi) that has the highest absolute value correlation with Y
         """
-        data_y = data[:, -1]
-        number_features = data.shape[1] - 1
-        feature_correlations = np.zeros(number_features)
-
-        for i in range(number_features):
-            correlation, _ = pearsonr(data[:, i], data_y)  # returns tuple of Pearson correlation coefficient and p-value for testing non-correlation
-            feature_correlations[i] = abs(correlation)
-
-        return np.argmax(feature_correlations)  # Returns the indices of the maximum values along an axis.
+        correlation = np.corrcoef(data, rowvar=False)  # Return Pearson product-moment correlation coefficients
+        abs_corr_with_y = abs(correlation[:-1, -1])  # neg corrcoef would indicate inverse correlation
+        sort_order = np.argsort(abs_corr_with_y)
+        if self.verbose:
+            print("correlations-with-y ", correlation[:-1, -1])
+            print(" abs_corr_with_y ", abs_corr_with_y)
+            print("sort_order ", sort_order)
+            print("best feature index ", sort_order[-1])
+        return sort_order[-1]
 
     def query(self, points):
         """
