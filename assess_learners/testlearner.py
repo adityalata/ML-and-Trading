@@ -239,14 +239,17 @@ if __name__ == "__main__":
     print("====================================================================")
 
     print('Starting Experiment 1')
-    exp1_max_leaf_size = 25
+    exp1_max_leaf_size = 50
     exp1_array_size = exp1_max_leaf_size+1
     exp1_rmse_in_sample = np.zeros(exp1_array_size)
     exp1_rmse_out_of_sample = np.zeros(exp1_array_size)
+    exp1_xticks = []
 
     for i in range(exp1_array_size):
         exp1_trail_learner = dt.DTLearner(leaf_size=i, verbose=verbose)
         exp1_trail_learner.add_evidence(train_x, train_y)
+        if i % 2:
+            exp1_xticks.append(i)
 
         # in sample - train exp
         exp1_trail_pred_train_y = exp1_trail_learner.query(train_x)
@@ -268,6 +271,7 @@ if __name__ == "__main__":
     plt.axis([0, exp1_max_leaf_size, 0, max(exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
     plt.axvline(x=exp1_min_rmse_out_leaf_size, color='r', label='Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
+    plt.xticks(ticks=exp1_xticks, rotation=45)
     plt.ylabel('Root Mean Squared Error (RMSE)')
     plt.title('Figure 1: Overfitting trend in DT Learner - alata6')
 
@@ -277,4 +281,53 @@ if __name__ == "__main__":
     plt.legend(loc='lower right', shadow=True, fontsize='medium')
     plt.savefig('Experiment_1.png')
 
+    print("====================================================================")
+
+    print('Starting Experiment 2')
+    exp2_max_leaf_size = 50
+    exp2_bag_size = 20
+    exp2_array_size = exp2_max_leaf_size + 1
+    exp2_rmse_in_sample = np.zeros(exp2_array_size)
+    exp2_rmse_out_of_sample = np.zeros(exp2_array_size)
+    exp2_xticks = []
+
+    for i in range(exp2_array_size):
+        exp2_trail_learner = bl.BagLearner(bags=exp2_bag_size, verbose=verbose, kwargs={'leaf_size': i})
+        exp2_trail_learner.add_evidence(train_x, train_y)
+        if i % 2:
+            exp2_xticks.append(i)
+
+        # in sample - train exp
+        exp2_trail_pred_train_y = exp2_trail_learner.query(train_x)
+        exp2_rmse_in_sample[i] = root_mean_squared_error(train_y, exp2_trail_pred_train_y)
+
+        # out of sample - test exp
+        exp2_trail_pred_test_y = exp2_trail_learner.query(test_x)
+        exp2_rmse_out_of_sample[i] = root_mean_squared_error(exp2_trail_pred_test_y, test_y)
+
+    exp2_max_rmse_in_sample = np.nanmax(exp2_rmse_in_sample)
+    exp2_max_rmse_out_sample = np.nanmax(exp2_rmse_out_of_sample)
+    exp2_min_rmse_out_sample = np.nanmin(exp2_rmse_out_of_sample)
+    exp2_min_rmse_out_leaf_size = np.argsort(exp2_rmse_out_of_sample)[0]
+    # print("exp2_rmse_in_sample ", exp2_rmse_in_sample)
+    # print("exp2_rmse_out_of_sample ", exp2_rmse_out_of_sample)
+    print('exp2_min_rmse_out_sample ', exp2_min_rmse_out_sample, " exp2_max_rmse_in_sample ", exp2_max_rmse_in_sample,
+          " exp2_max_rmse_out_sample ", exp2_max_rmse_out_sample, "exp2_min_rmse_out_leaf_size",
+          exp2_min_rmse_out_leaf_size)
+
+    plt.figure(2)
+    plt.axis([0, exp2_max_leaf_size, 0, max(exp2_max_rmse_in_sample, exp2_max_rmse_out_sample)])
+    plt.axvline(x=exp2_min_rmse_out_leaf_size, color='r', label='BagL - Overfitting leaf size', linestyle='dashed')
+    plt.xlabel('Leaf Size')
+    plt.xticks(ticks=exp2_xticks, rotation=45)
+    plt.ylabel('Root Mean Squared Error (RMSE)')
+    plt.title('Figure 2: Overfitting trend in Bag Learner - alata6')
+
+    plt.plot(exp2_rmse_in_sample, label='BagL - In Sample Test')
+    plt.plot(exp2_rmse_out_of_sample, label='BagL - Out of Sample Test')
+    plt.plot(exp1_rmse_in_sample, label='DT - In Sample Test')
+    plt.plot(exp1_rmse_out_of_sample, label='DT - Out of Sample Test')
+
+    plt.legend(loc='lower right', shadow=True, fontsize='medium')
+    plt.savefig('Experiment_2.png')
     print("====================================================================")
