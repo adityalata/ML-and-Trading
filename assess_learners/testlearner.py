@@ -245,31 +245,34 @@ if __name__ == "__main__":
     exp1_rmse_out_of_sample = np.zeros(exp1_array_size)
 
     for i in range(exp1_array_size):
-        exp1_trail_learner = dt.DTLearner(leaf_size=i)
+        exp1_trail_learner = dt.DTLearner(leaf_size=i, verbose=verbose)
         exp1_trail_learner.add_evidence(train_x, train_y)
 
         # in sample - train exp
-        exp1_trail_pred_train_y = learner.query(train_x)
+        exp1_trail_pred_train_y = exp1_trail_learner.query(train_x)
         exp1_rmse_in_sample[i] = root_mean_squared_error(train_y, exp1_trail_pred_train_y)
 
         # out of sample - test exp
-        exp1_trail_pred_test_y = learner.query(test_x)
+        exp1_trail_pred_test_y = exp1_trail_learner.query(test_x)
         exp1_rmse_out_of_sample[i] = root_mean_squared_error(exp1_trail_pred_test_y, test_y)
 
     exp1_max_rmse_in_sample = np.nanmax(exp1_rmse_in_sample)
     exp1_max_rmse_out_sample = np.nanmax(exp1_rmse_out_of_sample)
-    exp1_min_rmse_out_sample = np.nanmin(exp1_rmse_out_of_sample)  # todo plot
-    print("exp1_min_rmse_out_sample ", exp1_min_rmse_out_sample, " exp1_max_rmse_in_sample ", exp1_max_rmse_in_sample, " exp1_max_rmse_out_sample ", exp1_max_rmse_out_sample)
+    exp1_min_rmse_out_sample = np.nanmin(exp1_rmse_out_of_sample)
+    exp1_min_rmse_out_leaf_size = np.argsort(exp1_rmse_out_of_sample)[0]
+    # print("exp1_rmse_in_sample ", exp1_rmse_in_sample)
+    # print("exp1_rmse_out_of_sample ", exp1_rmse_out_of_sample)
+    print('exp1_min_rmse_out_sample ', exp1_min_rmse_out_sample, " exp1_max_rmse_in_sample ", exp1_max_rmse_in_sample, " exp1_max_rmse_out_sample ", exp1_max_rmse_out_sample, "exp1_min_rmse_out_leaf_size", exp1_min_rmse_out_leaf_size)
 
     plt.figure(1)
     plt.axis([0, exp1_max_leaf_size, 0, max(exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
-
+    plt.axvline(x=exp1_min_rmse_out_leaf_size, color='r', label='Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
     plt.ylabel('Root Mean Squared Error (RMSE)')
-    plt.title('Figure 1: Overfitting in DT Learner with varying Leaf Size')
+    plt.title('Figure 1: Overfitting trend in DT Learner - alata6')
 
-    plt.plot(exp1_rmse_in_sample, label='In Sample')
-    plt.plot(exp1_rmse_out_of_sample, label='Out of Sample')
+    plt.plot(exp1_rmse_in_sample, label='In Sample Test')
+    plt.plot(exp1_rmse_out_of_sample, label='Out of Sample Test')
 
     plt.legend(loc='lower right', shadow=True, fontsize='medium')
     plt.savefig('Experiment_1.png')
