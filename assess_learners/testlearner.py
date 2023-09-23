@@ -268,7 +268,7 @@ if __name__ == "__main__":
     print('exp1_min_rmse_out_sample ', exp1_min_rmse_out_sample, " exp1_max_rmse_in_sample ", exp1_max_rmse_in_sample, " exp1_max_rmse_out_sample ", exp1_max_rmse_out_sample, "exp1_min_rmse_out_leaf_size", exp1_min_rmse_out_leaf_size)
 
     plt.figure(1)
-    plt.axis([0, exp1_max_leaf_size, 0, max(exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
+    plt.axis([1, exp1_max_leaf_size, 0, max(exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
     plt.axvline(x=exp1_min_rmse_out_leaf_size, color='r', label='Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
     plt.xticks(ticks=exp1_xticks, rotation=45)
@@ -316,7 +316,7 @@ if __name__ == "__main__":
           exp2_min_rmse_out_leaf_size)
 
     plt.figure(2)
-    plt.axis([0, exp2_max_leaf_size, 0, max(exp2_max_rmse_in_sample, exp2_max_rmse_out_sample, exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
+    plt.axis([1, exp2_max_leaf_size, 0, max(exp2_max_rmse_in_sample, exp2_max_rmse_out_sample, exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
     plt.axvline(x=exp2_min_rmse_out_leaf_size, color='r', label='BagL - Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
     plt.xticks(ticks=exp2_xticks, rotation=45)
@@ -373,7 +373,7 @@ if __name__ == "__main__":
     print('exp3_dt_min_rmse_out_sample ', exp3_dt_min_rmse_out_sample, " exp3_dt_max_rmse_in_sample ", exp3_dt_max_rmse_in_sample, " exp3_dt_max_rmse_out_sample ", exp3_dt_max_rmse_out_sample, "exp3_dt_min_rmse_out_leaf_size", exp3_dt_min_rmse_out_leaf_size)
 
     plt.figure(3)
-    plt.axis([0, exp3_max_leaf_size, 0, max(exp3_dt_max_rmse_in_sample, exp3_dt_max_rmse_out_sample, exp3_rt_max_rmse_in_sample, exp3_rt_max_rmse_out_sample)])
+    plt.axis([1, exp3_max_leaf_size, 0, max(exp3_dt_max_rmse_in_sample, exp3_dt_max_rmse_out_sample, exp3_rt_max_rmse_in_sample, exp3_rt_max_rmse_out_sample)])
     plt.axvline(x=exp3_dt_min_rmse_out_leaf_size, color='r', label='DT Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
     plt.xticks(ticks=exp3_xticks, rotation=45)
