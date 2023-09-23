@@ -109,7 +109,7 @@ class DTLearner(object):
         predicted_results = np.zeros(points.shape[0])
         for i in range(points.shape[0]):
             predicted_results[i] = (self.traverse_decision_tree(0, points[i, :]))  # start traversing trained Decision Tree from root - index 0
-        return np.array(predicted_results)
+        return predicted_results
 
     #
     def traverse_decision_tree(self, node_index, point):

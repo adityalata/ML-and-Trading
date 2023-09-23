@@ -86,8 +86,7 @@ class RTLearner(object):
             left_tree = self.recursively_build_tree(left_subtree)
             right_tree = self.recursively_build_tree(right_subtree)
 
-            root_node = np.array(
-                [[random_feature_index, split_val, 1, left_tree.shape[0] + 1]])  # using 1 since we only need offset
+            root_node = np.array([[random_feature_index, split_val, 1, left_tree.shape[0] + 1]])  # using 1 since we only need offset
             return np.row_stack((root_node, left_tree, right_tree))  # Stack arrays in sequence vertically (row wise).
 
     def query(self, points):
@@ -102,7 +101,7 @@ class RTLearner(object):
         predicted_results = np.zeros(points.shape[0])
         for i in range(points.shape[0]):
             predicted_results[i] = (self.traverse_decision_tree(0, points[i, :]))  # start traversing trained Decision Tree from root - index 0
-        return np.array(predicted_results)
+        return predicted_results
 
     #
     def traverse_decision_tree(self, node_index, point):
