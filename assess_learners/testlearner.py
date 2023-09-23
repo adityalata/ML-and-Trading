@@ -44,8 +44,13 @@ def gtid():
     return 903952381
 
 
-def root_mean_squared_error(predictions, targets):
-    return np.sqrt(((predictions - targets) ** 2).mean())
+def root_mean_squared_error(predictions, actual):
+    return np.sqrt(((predictions - actual) ** 2).mean())
+
+
+def r_squared(predictions, actual):
+    corr_matrix = np.corrcoef(actual, predictions)
+    return corr_matrix[0, 1]**2
 
 
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -340,6 +345,10 @@ if __name__ == "__main__":
     exp3_dt_rmse_out_of_sample = np.zeros(exp3_array_size)
     exp3_rt_rmse_in_sample = np.zeros(exp3_array_size)
     exp3_rt_rmse_out_of_sample = np.zeros(exp3_array_size)
+    exp3_dt_rsq_in_sample = np.zeros(exp3_array_size)
+    exp3_dt_rsq_out_of_sample = np.zeros(exp3_array_size)
+    exp3_rt_rsq_in_sample = np.zeros(exp3_array_size)
+    exp3_rt_rsq_out_of_sample = np.zeros(exp3_array_size)
     exp3_xticks = []
 
     for i in range(exp3_array_size):
@@ -353,21 +362,29 @@ if __name__ == "__main__":
         # in sample - train exp
         exp3_dt_trail_pred_train_y = exp3_dt_trail_learner.query(train_x)
         exp3_dt_rmse_in_sample[i] = root_mean_squared_error(train_y, exp3_dt_trail_pred_train_y)
+        exp3_dt_rsq_in_sample[i] = r_squared(train_y, exp3_dt_trail_pred_train_y)
         exp3_rt_trail_pred_train_y = exp3_rt_trail_learner.query(train_x)
         exp3_rt_rmse_in_sample[i] = root_mean_squared_error(train_y, exp3_rt_trail_pred_train_y)
+        exp3_rt_rsq_in_sample[i] = r_squared(train_y, exp3_rt_trail_pred_train_y)
 
         # out of sample - test exp
         exp3_dt_trail_pred_test_y = exp3_dt_trail_learner.query(test_x)
         exp3_dt_rmse_out_of_sample[i] = root_mean_squared_error(exp3_dt_trail_pred_test_y, test_y)
+        exp3_dt_rsq_out_of_sample[i] = r_squared(exp3_dt_trail_pred_test_y, test_y)
         exp3_rt_trail_pred_test_y = exp3_rt_trail_learner.query(test_x)
         exp3_rt_rmse_out_of_sample[i] = root_mean_squared_error(exp3_rt_trail_pred_test_y, test_y)
+        exp3_rt_rsq_out_of_sample[i] = r_squared(exp3_rt_trail_pred_test_y, test_y)
 
     exp3_dt_max_rmse_in_sample = np.nanmax(exp3_dt_rmse_in_sample)
     exp3_dt_max_rmse_out_sample = np.nanmax(exp3_dt_rmse_out_of_sample)
+    exp3_dt_max_rsq_in_sample = np.nanmax(exp3_dt_rsq_in_sample)
+    exp3_dt_max_rsq_out_sample = np.nanmax(exp3_dt_rsq_out_of_sample)
     exp3_dt_min_rmse_out_sample = np.nanmin(exp3_dt_rmse_out_of_sample)
     exp3_dt_min_rmse_out_leaf_size = np.argsort(exp3_dt_rmse_out_of_sample)[0]
     exp3_rt_max_rmse_in_sample = np.nanmax(exp3_rt_rmse_in_sample)
     exp3_rt_max_rmse_out_sample = np.nanmax(exp3_rt_rmse_out_of_sample)
+    exp3_rt_max_rsq_in_sample = np.nanmax(exp3_rt_rsq_in_sample)
+    exp3_rt_max_rsq_out_sample = np.nanmax(exp3_rt_rsq_out_of_sample)
     # print("exp3_dt_rmse_in_sample ", exp3_dt_rmse_in_sample)
     # print("exp3_dt_rmse_out_of_sample ", exp3_dt_rmse_out_of_sample)
     print('exp3_dt_min_rmse_out_sample ', exp3_dt_min_rmse_out_sample, " exp3_dt_max_rmse_in_sample ", exp3_dt_max_rmse_in_sample, " exp3_dt_max_rmse_out_sample ", exp3_dt_max_rmse_out_sample, "exp3_dt_min_rmse_out_leaf_size", exp3_dt_min_rmse_out_leaf_size)
@@ -378,12 +395,23 @@ if __name__ == "__main__":
     plt.xlabel('Leaf Size')
     plt.xticks(ticks=exp3_xticks, rotation=45)
     plt.ylabel('Root Mean Squared Error (RMSE)')
-    plt.title('Figure 3: DT vs RT Learner - alata6')
-
+    plt.title('Figure 4: DT vs RT Learner - alata6')
     plt.plot(exp3_dt_rmse_in_sample, label='DT - In Sample Test')
     plt.plot(exp3_dt_rmse_out_of_sample, label='DT - Out of Sample Test')
     plt.plot(exp3_rt_rmse_in_sample, label='RT - In Sample Test')
     plt.plot(exp3_rt_rmse_out_of_sample, label='RT - Out of Sample Test')
-
     plt.legend(loc='lower right', shadow=True, fontsize='medium')
-    plt.savefig('Experiment_3.png')
+    plt.savefig('Experiment_3_rmse.png')
+
+    plt.figure(4)
+    plt.axis([1, exp3_max_leaf_size, 0, max(exp3_dt_max_rsq_in_sample, exp3_dt_max_rsq_out_sample, exp3_rt_max_rsq_in_sample,exp3_rt_max_rsq_out_sample)])
+    plt.xlabel('Leaf Size')
+    plt.xticks(ticks=exp3_xticks, rotation=45)
+    plt.ylabel('Coefficient of Determination (R-Squared)')
+    plt.title('Figure 3: DT vs RT Learner - alata6')
+    plt.plot(exp3_dt_rsq_in_sample, label='DT - In Sample Test')
+    plt.plot(exp3_dt_rsq_out_of_sample, label='DT - Out of Sample Test')
+    plt.plot(exp3_rt_rsq_in_sample, label='RT - In Sample Test')
+    plt.plot(exp3_rt_rsq_out_of_sample, label='RT - Out of Sample Test')
+    plt.legend(loc='lower right', shadow=True, fontsize='medium')
+    plt.savefig('Experiment_3_rsq.png')
