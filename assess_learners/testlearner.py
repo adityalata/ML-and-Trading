@@ -34,6 +34,7 @@ import RTLearner as rt
 import BagLearner as bl
 import InsaneLearner as il
 import matplotlib.pyplot as plt
+import time
 
 
 def gtid():
@@ -53,7 +54,8 @@ def r_squared(predictions, actual):
     return corr_matrix[0, 1]**2
 
 
-if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
+if __name__ == "__main__":
+    test_learner_start_time = time.process_time()
     if len(sys.argv) != 2:  		  	   		  		 		  		  		    	 		 		   		 		  
         print("Usage: python testlearner.py <filename>")  		  	   		  		 		  		  		    	 		 		   		 		  
         sys.exit(1)
@@ -349,13 +351,20 @@ if __name__ == "__main__":
     exp3_dt_rsq_out_of_sample = np.zeros(exp3_array_size)
     exp3_rt_rsq_in_sample = np.zeros(exp3_array_size)
     exp3_rt_rsq_out_of_sample = np.zeros(exp3_array_size)
+    exp3_dt_train_time = np.zeros(exp3_array_size)
+    exp3_rt_train_time = np.zeros(exp3_array_size)
     exp3_xticks = []
 
     for i in range(exp3_array_size):
         exp3_dt_trail_learner = dt.DTLearner(leaf_size=i, verbose=verbose)
+        exp3_trail_training_start_time = time.process_time()
         exp3_dt_trail_learner.add_evidence(train_x, train_y)
+        exp3_dt_train_time[i] = time.process_time() - exp3_trail_training_start_time
+
         exp3_rt_trail_learner = rt.RTLearner(leaf_size=i, verbose=verbose)
+        exp3_trail_training_start_time = time.process_time()
         exp3_rt_trail_learner.add_evidence(train_x, train_y)
+        exp3_rt_train_time[i] = time.process_time() - exp3_trail_training_start_time
         if i % 2:
             exp3_xticks.append(i)
 
@@ -415,3 +424,17 @@ if __name__ == "__main__":
     plt.plot(exp3_rt_rsq_out_of_sample, label='RT - Out of Sample Test')
     plt.legend(loc='lower right', shadow=True, fontsize='medium')
     plt.savefig('Experiment_3_rsq.png')
+
+    plt.figure(5)
+    plt.axis([1, exp3_max_leaf_size, 0, max(np.nanmax(exp3_dt_train_time), np.nanmax(exp3_rt_train_time))])
+    plt.xlabel('Leaf Size')
+    plt.xticks(ticks=exp3_xticks, rotation=45)
+    plt.ylabel('Time to Train (Seconds)')
+    plt.title('Figure 3: DT vs RT Learner - alata6')
+    plt.plot(exp3_dt_train_time, label='DT - Time to Train')
+    plt.plot(exp3_rt_train_time, label='RT - Time to Train')
+    plt.legend(loc='upper right', shadow=True, fontsize='medium')
+    plt.savefig('Experiment_3_ttt.png')
+
+    print("====================================================================")
+    print("test learner execution completed in ", time.process_time()-test_learner_start_time, "seconds")
