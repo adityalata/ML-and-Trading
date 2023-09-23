@@ -72,20 +72,15 @@ if __name__ == "__main__":
     test_data = data[permutation[train_rows:], :]
     test_x = test_data[:, col_permutation]
     test_y = test_data[:, -1]
-
-    # # separate out training and testing data
-    # train_x = data[:train_rows, 0:-1]
-    # train_y = data[:train_rows, -1]
-    # test_x = data[train_rows:, 0:-1]
-    # test_y = data[train_rows:, -1]
   		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"{test_x.shape}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"{test_y.shape}")  		  	   		  		 		  		  		    	 		 		   		 		  
+    print("test_x.shape", f"{test_x.shape}")
+    print("test_y.shape", f"{test_y.shape}")
+    verbose = True  # todo make False before submission
   		  	   		  		 		  		  		    	 		 		   		 		  
     # create a learner and train it
     print("====================================================================")
     print("Lin Reg Learner")
-    learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner  		  	   		  		 		  		  		    	 		 		   		 		  
+    learner = lrl.LinRegLearner(verbose=verbose)  # create a LinRegLearner
     learner.add_evidence(train_x, train_y)  # train it  		  	   		  		 		  		  		    	 		 		   		 		  
     print(learner.author())  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -109,8 +104,9 @@ if __name__ == "__main__":
     print("====================================================================")
     print('Decision Tree Learner')
 
-    learner = dt.DTLearner()
+    learner = dt.DTLearner(verbose=verbose)
     learner.add_evidence(train_x, train_y)
+    print(learner.author())
 
     # evaluate in-sample
     pred_y = learner.query(train_x)
@@ -139,8 +135,9 @@ if __name__ == "__main__":
 
     print('Random Tree Learner')
 
-    learner = rt.RTLearner()
+    learner = rt.RTLearner(verbose=verbose)
     learner.add_evidence(train_x, train_y)
+    print(learner.author())
 
     # evaluate in-sample
     pred_y = learner.query(train_x)
@@ -168,8 +165,9 @@ if __name__ == "__main__":
     print("====================================================================")
     print('Bag Learner')
 
-    learner = bl.BagLearner()  # defaults to 20 DTLearners with leaf size of 1
+    learner = bl.BagLearner(verbose=verbose)  # defaults to 20 DTLearners with leaf size of 1
     learner.add_evidence(train_x, train_y)
+    print(learner.author())
 
     # evaluate in-sample
     pred_y = learner.query(train_x)
@@ -197,8 +195,9 @@ if __name__ == "__main__":
     print("====================================================================")
     print('Insane Learner')
 
-    learner = il.InsaneLearner()  # defaults to DTLearner with leaf size of 1
+    learner = il.InsaneLearner(verbose=verbose)  # defaults to DTLearner with leaf size of 1
     learner.add_evidence(train_x, train_y)
+    print(learner.author())
 
     # evaluate in-sample
     pred_y = learner.query(train_x)

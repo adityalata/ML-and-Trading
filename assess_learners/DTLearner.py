@@ -18,6 +18,8 @@ class DTLearner(object):
         self.decision_tree = None
         self.verbose = verbose
         self.leaf_size = leaf_size
+        if verbose:
+            print("Initialized DT with leaf_size : ", leaf_size)
 
     def author(self):
         """
