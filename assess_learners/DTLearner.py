@@ -62,17 +62,21 @@ class DTLearner(object):
 
         else:
             feature_index = self.determine_best_feature(data)
-            split_val = np.median(data[:, feature_index])  # todo check if pop median req
+            split_val = np.median(data[:, feature_index])
 
             left_subtree = data[data[:, feature_index] <= split_val]  # feature values LTE to the split_value
             right_subtree = data[data[:, feature_index] > split_val]  # feature values GT the split_value
 
-            #  todo check if this case can actually occur
-            #  ideally all values to one side of median implies all Y are same thus should have caught above
+            # edge case : algorithm picks the largest or smallest element as the split_val
             if left_subtree.shape[0] == number_elements or right_subtree.shape[0] == number_elements:
                 if self.verbose:
-                    print("All items on one side of median")
-                return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
+                    print("All items on one side of median with median split_val", split_val)
+                split_val = np.mean(data[:, feature_index])
+                left_subtree = data[data[:, feature_index] <= split_val]  # feature values LTE to the split_value
+                right_subtree = data[data[:, feature_index] > split_val]  # feature values GT the split_value
+                if self.verbose:
+                    print("trying with mean split_val", split_val, " left_subtree.shape[0] ", left_subtree.shape[0], " right_subtree.shape[0] ", right_subtree.shape[0])
+                # return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
 
             left_tree = self.recursively_build_tree(left_subtree)
             right_tree = self.recursively_build_tree(right_subtree)
