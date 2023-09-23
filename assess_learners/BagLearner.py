@@ -22,6 +22,8 @@ class BagLearner(object):
         self.boost = boost
         self.bag_count = bags
         np.random.seed(self.gtid())  # todo check
+        if verbose:
+            print("Initialized DT with bags ", bags, " boost ", boost)
 
     def author(self):
         """

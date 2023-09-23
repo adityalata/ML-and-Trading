@@ -18,6 +18,8 @@ class RTLearner(object):
         self.verbose = verbose
         self.leaf_size = leaf_size
         np.random.seed(self.gtid())  # todo check
+        if verbose:
+            print("Initialized RT with leaf_size : ", leaf_size)
 
     def author(self):
         """
