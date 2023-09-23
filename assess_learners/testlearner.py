@@ -61,13 +61,23 @@ if __name__ == "__main__":
   		  	   		  		 		  		  		    	 		 		   		 		  
     # compute how much of the data is training and testing  		  	   		  		 		  		  		    	 		 		   		 		  
     train_rows = int(0.6 * data.shape[0])  		  	   		  		 		  		  		    	 		 		   		 		  
-    test_rows = data.shape[0] - train_rows  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # separate out training and testing data  		  	   		  		 		  		  		    	 		 		   		 		  
-    train_x = data[:train_rows, 0:-1]  		  	   		  		 		  		  		    	 		 		   		 		  
-    train_y = data[:train_rows, -1]  		  	   		  		 		  		  		    	 		 		   		 		  
-    test_x = data[train_rows:, 0:-1]  		  	   		  		 		  		  		    	 		 		   		 		  
-    test_y = data[train_rows:, -1]  		  	   		  		 		  		  		    	 		 		   		 		  
+    test_rows = data.shape[0] - train_rows
+
+    # separate out training and testing data
+    permutation = np.random.permutation(data.shape[0])
+    col_permutation = np.random.permutation(data.shape[1] - 1)
+    train_data = data[permutation[:train_rows], :]
+    train_x = train_data[:, col_permutation]
+    train_y = train_data[:, -1]
+    test_data = data[permutation[train_rows:], :]
+    test_x = test_data[:, col_permutation]
+    test_y = test_data[:, -1]
+
+    # # separate out training and testing data
+    # train_x = data[:train_rows, 0:-1]
+    # train_y = data[:train_rows, -1]
+    # test_x = data[train_rows:, 0:-1]
+    # test_y = data[train_rows:, -1]
   		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"{test_x.shape}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"{test_y.shape}")  		  	   		  		 		  		  		    	 		 		   		 		  
