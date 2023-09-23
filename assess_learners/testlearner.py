@@ -33,6 +33,7 @@ import DTLearner as dt
 import RTLearner as rt
 import BagLearner as bl
 import InsaneLearner as il
+import matplotlib.pyplot as plt
 
 
 def gtid():
@@ -41,6 +42,11 @@ def gtid():
     :rtype: int
     """
     return 903952381
+
+
+def root_mean_squared_error(predictions, targets):
+    return np.sqrt(((predictions - targets) ** 2).mean())
+
 
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -230,4 +236,42 @@ if __name__ == "__main__":
     c = np.corrcoef(pred_y, y=test_y)
 
     print('Corr: {}'.format(c[0, 1]))
+    print("====================================================================")
+
+    print('Starting Experiment 1')
+    exp1_max_leaf_size = 25
+    exp1_array_size = exp1_max_leaf_size+1
+    exp1_rmse_in_sample = np.zeros(exp1_array_size)
+    exp1_rmse_out_of_sample = np.zeros(exp1_array_size)
+
+    for i in range(exp1_array_size):
+        exp1_trail_learner = dt.DTLearner(leaf_size=i)
+        exp1_trail_learner.add_evidence(train_x, train_y)
+
+        # in sample - train exp
+        exp1_trail_pred_train_y = learner.query(train_x)
+        exp1_rmse_in_sample[i] = root_mean_squared_error(train_y, exp1_trail_pred_train_y)
+
+        # out of sample - test exp
+        exp1_trail_pred_test_y = learner.query(test_x)
+        exp1_rmse_out_of_sample[i] = root_mean_squared_error(exp1_trail_pred_test_y, test_y)
+
+    exp1_max_rmse_in_sample = np.nanmax(exp1_rmse_in_sample)
+    exp1_max_rmse_out_sample = np.nanmax(exp1_rmse_out_of_sample)
+    exp1_min_rmse_out_sample = np.nanmin(exp1_rmse_out_of_sample)  # todo plot
+    print("exp1_min_rmse_out_sample ", exp1_min_rmse_out_sample, " exp1_max_rmse_in_sample ", exp1_max_rmse_in_sample, " exp1_max_rmse_out_sample ", exp1_max_rmse_out_sample)
+
+    plt.figure(1)
+    plt.axis([0, exp1_max_leaf_size, 0, max(exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
+
+    plt.xlabel('Leaf Size')
+    plt.ylabel('Root Mean Squared Error (RMSE)')
+    plt.title('Figure 1: Overfitting in DT Learner with varying Leaf Size')
+
+    plt.plot(exp1_rmse_in_sample, label='In Sample')
+    plt.plot(exp1_rmse_out_of_sample, label='Out of Sample')
+
+    plt.legend(loc='lower right', shadow=True, fontsize='medium')
+    plt.savefig('Experiment_1.png')
+
     print("====================================================================")
