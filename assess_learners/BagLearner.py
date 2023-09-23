@@ -52,13 +52,13 @@ class BagLearner(object):
         number_elements = data.shape[0]  # amount of training data
 
         for learner in self.learners:  # todo handle case where learner is not defined
-            bag = np.empty(shape=(0, data.shape[1]))
+            bag_data = np.empty(shape=(0, data.shape[1]))
 
             for _ in range(number_elements):  # If the training set contains n data items, each bag should contain n items as well.
                 index = np.random.randint(0, number_elements)  # sample with replacement
-                bag = np.row_stack((bag, data[index]))  # Stack arrays in sequence vertically (row wise).
+                bag_data = np.row_stack((bag_data, data[index]))  # Stack arrays in sequence vertically (row wise).
 
-            learner.add_evidence(bag[:, 0:-1], bag[:, -1])  # training each learner
+            learner.add_evidence(bag_data[:, 0:-1], bag_data[:, -1])  # training each learner
 
     def query(self, points):
         """
