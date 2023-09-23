@@ -91,11 +91,11 @@ class DTLearner(object):
         correlation = np.corrcoef(data, rowvar=False)  # Return Pearson product-moment correlation coefficients
         abs_corr_with_y = abs(correlation[:-1, -1])  # neg corrcoef would indicate inverse correlation
         sort_order = np.argsort(abs_corr_with_y)
-        if self.verbose:
-            print("correlations-with-y ", correlation[:-1, -1])
-            print(" abs_corr_with_y ", abs_corr_with_y)
-            print("sort_order ", sort_order)
-            print("best feature index ", sort_order[-1])
+        # if self.verbose:
+        #     print("correlations-with-y ", correlation[:-1, -1])
+        #     print("abs_corr_with_y ", abs_corr_with_y)
+        #     print("sort_order ", sort_order)
+        #     print("best feature index ", sort_order[-1])
         return sort_order[-1]
 
     def query(self, points):
