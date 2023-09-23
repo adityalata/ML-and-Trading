@@ -275,6 +275,7 @@ if __name__ == "__main__":
     print('exp1_min_rmse_out_sample ', exp1_min_rmse_out_sample, " exp1_max_rmse_in_sample ", exp1_max_rmse_in_sample, " exp1_max_rmse_out_sample ", exp1_max_rmse_out_sample, "exp1_min_rmse_out_leaf_size", exp1_min_rmse_out_leaf_size)
 
     plt.figure(1)
+    plt.grid(color='green', linestyle='--', linewidth=0.5)
     plt.axis([1, exp1_max_leaf_size, 0, max(exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
     plt.axvline(x=exp1_min_rmse_out_leaf_size, color='r', label='Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
@@ -323,6 +324,7 @@ if __name__ == "__main__":
           exp2_min_rmse_out_leaf_size)
 
     plt.figure(2)
+    plt.grid(color='green', linestyle='--', linewidth=0.5)
     plt.axis([1, exp2_max_leaf_size, 0, max(exp2_max_rmse_in_sample, exp2_max_rmse_out_sample, exp1_max_rmse_in_sample, exp1_max_rmse_out_sample)])
     plt.axvline(x=exp2_min_rmse_out_leaf_size, color='r', label='BagL - Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
@@ -399,6 +401,7 @@ if __name__ == "__main__":
     print('exp3_dt_min_rmse_out_sample ', exp3_dt_min_rmse_out_sample, " exp3_dt_max_rmse_in_sample ", exp3_dt_max_rmse_in_sample, " exp3_dt_max_rmse_out_sample ", exp3_dt_max_rmse_out_sample, "exp3_dt_min_rmse_out_leaf_size", exp3_dt_min_rmse_out_leaf_size)
 
     plt.figure(3)
+    plt.grid(color='green', linestyle='--', linewidth=0.5)
     plt.axis([1, exp3_max_leaf_size, 0, max(exp3_dt_max_rmse_in_sample, exp3_dt_max_rmse_out_sample, exp3_rt_max_rmse_in_sample, exp3_rt_max_rmse_out_sample)])
     plt.axvline(x=exp3_dt_min_rmse_out_leaf_size, color='r', label='DT Overfitting leaf size', linestyle='dashed')
     plt.xlabel('Leaf Size')
@@ -413,6 +416,7 @@ if __name__ == "__main__":
     plt.savefig('Experiment_3_rmse.png')
 
     plt.figure(4)
+    plt.grid(color='green', linestyle='--', linewidth=0.5)
     plt.axis([1, exp3_max_leaf_size, 0, max(exp3_dt_max_rsq_in_sample, exp3_dt_max_rsq_out_sample, exp3_rt_max_rsq_in_sample,exp3_rt_max_rsq_out_sample)])
     plt.xlabel('Leaf Size')
     plt.xticks(ticks=exp3_xticks, rotation=45)
@@ -420,12 +424,14 @@ if __name__ == "__main__":
     plt.title('Figure 3: DT vs RT Learner - alata6')
     plt.plot(exp3_dt_rsq_in_sample, label='DT - In Sample Test')
     plt.plot(exp3_dt_rsq_out_of_sample, label='DT - Out of Sample Test')
+    plt.axvline(x=exp3_dt_min_rmse_out_leaf_size, color='r', label='DT Overfitting leaf size', linestyle='dashed')
     plt.plot(exp3_rt_rsq_in_sample, label='RT - In Sample Test')
     plt.plot(exp3_rt_rsq_out_of_sample, label='RT - Out of Sample Test')
     plt.legend(loc='lower right', shadow=True, fontsize='medium')
     plt.savefig('Experiment_3_rsq.png')
 
     plt.figure(5)
+    plt.grid(color='green', linestyle='--', linewidth=0.5)
     plt.axis([1, exp3_max_leaf_size, 0, max(np.nanmax(exp3_dt_train_time), np.nanmax(exp3_rt_train_time))])
     plt.xlabel('Leaf Size')
     plt.xticks(ticks=exp3_xticks, rotation=45)
