@@ -83,7 +83,7 @@ if __name__ == "__main__":
   		  	   		  		 		  		  		    	 		 		   		 		  
     print("test_x.shape", f"{test_x.shape}")
     print("test_y.shape", f"{test_y.shape}")
-    verbose = True  # todo make False before submission
+    verbose = False  # todo make False before submission
   		  	   		  		 		  		  		    	 		 		   		 		  
     # create a learner and train it
     print("====================================================================")

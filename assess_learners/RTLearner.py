@@ -1,5 +1,5 @@
 import numpy as np
-import DTLearner as dl
+
 
 class RTLearner(object):
     """
@@ -62,16 +62,15 @@ class RTLearner(object):
         :type data: numpy.ndarray
         :return: root of the tree
         """
-        number_elements = data.shape[0]  # todo safety if number_elements=0
-        if (number_elements == 1) or (
-                np.unique(data[:, -1]).size == 1):  # base case : only 1 training data or all items have same Y value
+        number_elements = data.shape[0]
+        if number_elements < 1:  # safety if number_elements=0
+            pass
+        elif (number_elements == 1) or (np.unique(data[:, -1]).size == 1):  # base case : only 1 training data or all items have same Y value
             return np.array([[None, data[0, -1], np.nan, np.nan]])
-
         elif number_elements <= self.leaf_size:  # When the tree is constructed recursively, if there are leaf_size or fewer elements at the time of the recursive call, the data should be aggregated into a leaf
             return np.array([[None, np.mean(data[:, -1]), np.nan, np.nan]])
-
         else:
-            random_feature_index = np.random.randint(0, data.shape[1] - 1)  #  the choice of feature to split on should be made randomly
+            random_feature_index = np.random.randint(0, data.shape[1] - 1)  # the choice of feature to split on should be made randomly
             split_val = np.median(data[:, random_feature_index])  # pick a random feature then split on the median value of that feature
 
             left_subtree = data[data[:, random_feature_index] <= split_val]  # feature values LTE to the split_value
