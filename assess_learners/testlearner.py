@@ -33,7 +33,15 @@ import DTLearner as dt
 import RTLearner as rt
 import BagLearner as bl
 import InsaneLearner as il
-  		  	   		  		 		  		  		    	 		 		   		 		  
+
+
+def gtid():
+    """
+    :return: The GT ID of the student
+    :rtype: int
+    """
+    return 903952381
+
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		  		 		  		  		    	 		 		   		 		  
         print("Usage: python testlearner.py <filename>")  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -62,7 +70,7 @@ if __name__ == "__main__":
     # compute how much of the data is training and testing  		  	   		  		 		  		  		    	 		 		   		 		  
     train_rows = int(0.6 * data.shape[0])  		  	   		  		 		  		  		    	 		 		   		 		  
     test_rows = data.shape[0] - train_rows
-
+    np.random.seed(gtid())
     # separate out training and testing data
     permutation = np.random.permutation(data.shape[0])
     col_permutation = np.random.permutation(data.shape[1] - 1)
