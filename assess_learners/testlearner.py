@@ -35,6 +35,7 @@ import BagLearner as bl
 import InsaneLearner as il
 import matplotlib.pyplot as plt
 import time
+from sklearn.metrics import r2_score
 
 
 def gtid():
@@ -50,8 +51,9 @@ def root_mean_squared_error(predictions, actual):
 
 
 def r_squared(predictions, actual):
-    corr_matrix = np.corrcoef(actual, predictions)
-    return corr_matrix[0, 1]**2
+    # corr_matrix = np.corrcoef(actual, predictions)
+    # return corr_matrix[0, 1]**2
+    return r2_score(actual,predictions)
 
 
 if __name__ == "__main__":
