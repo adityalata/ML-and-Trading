@@ -47,7 +47,7 @@ def best_4_lin_reg(seed=1489683273):
     np.random.seed(seed)  		  	   		  		 		  		  		    	 		 		   		 		  
     x = np.zeros((100, 2))  		  	   		  		 		  		  		    	 		 		   		 		  
     y = np.random.random(size=(100,)) * 200 - 100  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Here's is an example of creating a Y from randomly generated  		  	   		  		 		  		  		    	 		 		   		 		  
+    # Here is an example of creating a Y from randomly generated
     # X with multiple columns  		  	   		  		 		  		  		    	 		 		   		 		  
     # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3  		  	   		  		 		  		  		    	 		 		   		 		  
     return x, y  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -75,7 +75,7 @@ def author():
     :return: The GT username of the student  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: str  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
-    return "tb34"  # Change this to your user ID  		  	   		  		 		  		  		    	 		 		   		 		  
+    return "alata6"  # Change this to your user ID
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
