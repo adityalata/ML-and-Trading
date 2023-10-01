@@ -68,10 +68,9 @@ def best_4_dt(seed=1489683273):
     np.random.seed(seed)
     x_rows = 1000
     x_cols = 10
-    rand_low = 0
+    rand_low = 1
     rand_high = 100
-    # x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
-    x = np.random.random(size=(x_rows, x_cols)) * rand_high
+    x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
     y = np.power(x[:, 0], 2) + np.sin(x[:, 1]) - np.tanh(x[:, 2]) + np.log(x[:, 3]) - np.sqrt(x[:, 4])
     # x = np.zeros((100, 2))
     # y = np.random.random(size=(100,)) * 200 - 100
