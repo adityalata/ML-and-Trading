@@ -48,9 +48,9 @@ def best_4_lin_reg(seed=1489683273):
     x = np.zeros((100, 2))  		  	   		  		 		  		  		    	 		 		   		 		  
     y = np.random.random(size=(100,)) * 200 - 100  		  	   		  		 		  		  		    	 		 		   		 		  
     # Here is an example of creating a Y from randomly generated
-    # X with multiple columns  		  	   		  		 		  		  		    	 		 		   		 		  
-    # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3  		  	   		  		 		  		  		    	 		 		   		 		  
-    return x, y  		  	   		  		 		  		  		    	 		 		   		 		  
+    # X with multiple columns
+    # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3
+    return x, y
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 def best_4_dt(seed=1489683273):  		  	   		  		 		  		  		    	 		 		   		 		  
