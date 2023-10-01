@@ -43,10 +43,14 @@ def best_4_lin_reg(seed=1489683273):
     :type seed: int  		  	   		  		 		  		  		    	 		 		   		 		  
     :return: Returns data that performs significantly better with LinRegLearner than DTLearner.  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: numpy.ndarray  		  	   		  		 		  		  		    	 		 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
-    np.random.seed(seed)  		  	   		  		 		  		  		    	 		 		   		 		  
-    x = np.zeros((100, 2))  		  	   		  		 		  		  		    	 		 		   		 		  
-    y = np.random.random(size=(100,)) * 200 - 100  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
+    np.random.seed(seed)
+    x_rows = 1000
+    x_cols = 2
+    rand_low = 0
+    rand_high = 101
+    x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    y = x[:, 0] * -2 + x[:, 1] * 3
     # Here is an example of creating a Y from randomly generated
     # X with multiple columns
     # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3
