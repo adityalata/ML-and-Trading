@@ -46,7 +46,8 @@ def best_4_lin_reg(seed=1489683273):
     x_cols = 2
     rand_low = 1
     rand_high = 101
-    x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    # x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    x = (np.random.random(size=(x_rows, x_cols)) + rand_low) * rand_high
     """
     Linear Regression works well with data where output is a linear function of input variables
     Using the minimum number of rows(10) in training data X, linear reg is able to perform better than DT on linear Y
@@ -56,6 +57,8 @@ def best_4_lin_reg(seed=1489683273):
     if debug:
         print("===========================================================================================================")
         print("best_4_lin_reg with seed ", seed)
+        print("x", x)
+        print("y", y)
         print("x.shape", x.shape, "x_rows", x_rows, "x_cols", x_cols, "rand_low", rand_low, "rand_high", rand_high)
         print("y.shape", y.shape)
         print("===========================================================================================================")
@@ -78,7 +81,8 @@ def best_4_dt(seed=1489683273):
     x_cols = 10
     rand_low = 1
     rand_high = 100
-    x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    # x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    x = (np.random.random(size=(x_rows, x_cols)) + rand_low) * rand_high
     """
     DT works well where the target Y is a non linear function of input params X
     DT works better with higher training data rows
@@ -88,6 +92,8 @@ def best_4_dt(seed=1489683273):
     if debug:
         print("===========================================================================================================")
         print("best_4_dt with seed ", seed)
+        print("x", x)
+        print("y", y)
         print("x.shape", x.shape, "x_rows", x_rows, "x_cols", x_cols, "rand_low", rand_low, "rand_high", rand_high)
         print("y.shape", y.shape)
         print("===========================================================================================================")
