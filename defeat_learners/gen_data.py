@@ -87,5 +87,5 @@ def author():
     return "alata6"  # Change this to your user ID
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
-    print("they call me Tim.")  		  	   		  		 		  		  		    	 		 		   		 		  
+# if __name__ == "__main__":
+#     print("they call me Tim.")
