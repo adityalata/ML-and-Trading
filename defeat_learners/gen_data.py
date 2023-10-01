@@ -51,6 +51,13 @@ def best_4_lin_reg(seed=1489683273):
     # Here is an example of creating a Y from randomly generated
     # X with multiple columns
     # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3
+    debug = False  # do not commit as True
+    if debug:
+        print("===========================================================================================================")
+        print("best_4_lin_reg with seed ", seed)
+        print("x.shape", x.shape, "x_rows", x_rows, "x_cols", x_cols, "rand_low", rand_low, "rand_high", rand_high)
+        print("y.shape", y.shape)
+        print("===========================================================================================================")
     return x, y
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
@@ -74,6 +81,13 @@ def best_4_dt(seed=1489683273):
     y = np.power(x[:, 0], 2) + np.sin(x[:, 1]) - np.tanh(x[:, 2]) + np.log(x[:, 3]) - np.sqrt(x[:, 4])
     # x = np.zeros((100, 2))
     # y = np.random.random(size=(100,)) * 200 - 100
+    debug = False  # do not commit as True
+    if debug:
+        print("===========================================================================================================")
+        print("best_4_dt with seed ", seed)
+        print("x.shape", x.shape, "x_rows", x_rows, "x_cols", x_cols, "rand_low", rand_low, "rand_high", rand_high)
+        print("y.shape", y.shape)
+        print("===========================================================================================================")
     return x, y  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
