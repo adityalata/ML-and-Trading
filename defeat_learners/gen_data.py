@@ -47,7 +47,7 @@ def best_4_lin_reg(seed=1489683273):
     rand_low = 1
     rand_high = 101
     x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
-    y = x[:, 0] * -2 + x[:, 1] * 3
+    y = x[:, 0] * 7 + x[:, 1] * -13
     debug = False  # do not commit as True
     if debug:
         print("===========================================================================================================")
