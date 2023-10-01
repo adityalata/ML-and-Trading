@@ -42,7 +42,7 @@ def best_4_lin_reg(seed=1489683273):
     :rtype: numpy.ndarray  		  	   		  		 		  		  		    	 		 		   		 		  
     """
     np.random.seed(seed)
-    x_rows = 1000
+    x_rows = 10
     x_cols = 2
     rand_low = 1
     rand_high = 101
