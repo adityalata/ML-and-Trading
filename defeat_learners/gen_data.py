@@ -64,9 +64,9 @@ def best_4_dt(seed=1489683273):
     :return: Returns data that performs significantly better with DTLearner than LinRegLearner.  		  	   		  		 		  		  		    	 		 		   		 		  
     :rtype: numpy.ndarray  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
-    np.random.seed(seed)  		  	   		  		 		  		  		    	 		 		   		 		  
-    x = np.zeros((100, 2))  		  	   		  		 		  		  		    	 		 		   		 		  
-    y = np.random.random(size=(100,)) * 200 - 100  		  	   		  		 		  		  		    	 		 		   		 		  
+    np.random.seed(seed)
+    # x = np.zeros((100, 2))
+    # y = np.random.random(size=(100,)) * 200 - 100
     return x, y  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
