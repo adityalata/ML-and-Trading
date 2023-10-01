@@ -66,14 +66,13 @@ def best_4_dt(seed=1489683273):
     :rtype: numpy.ndarray  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     np.random.seed(seed)
-    x_rows = 10
-    x_cols = 2
+    x_rows = 1000
+    x_cols = 10
     rand_low = 0
-    rand_high = 101
+    rand_high = 100
     # x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
-    x = np.random.random(size=(10, 10)) * 200 - 100
-    # y = x[:, 0] ** 2 + x[:, 1] ** 3
-    y = x[:, 0]**2 + np.sin(x[:, 1]) + np.tanh(x[:, 2])
+    x = np.random.random(size=(x_rows, x_cols)) * rand_high
+    y = np.power(x[:, 0], 2) + np.sin(x[:, 1]) - np.tanh(x[:, 2]) + np.log(x[:, 3]) - np.sqrt(x[:, 4])
     # x = np.zeros((100, 2))
     # y = np.random.random(size=(100,)) * 200 - 100
     return x, y  		  	   		  		 		  		  		    	 		 		   		 		  
