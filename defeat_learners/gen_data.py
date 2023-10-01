@@ -48,9 +48,6 @@ def best_4_lin_reg(seed=1489683273):
     rand_high = 101
     x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
     y = x[:, 0] * -2 + x[:, 1] * 3
-    # Here is an example of creating a Y from randomly generated
-    # X with multiple columns
-    # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3
     debug = False  # do not commit as True
     if debug:
         print("===========================================================================================================")
@@ -79,8 +76,6 @@ def best_4_dt(seed=1489683273):
     rand_high = 100
     x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
     y = np.power(x[:, 0], 2) + np.sin(x[:, 1]) - np.tanh(x[:, 2]) + np.log(x[:, 3]) - np.sqrt(x[:, 4])
-    # x = np.zeros((100, 2))
-    # y = np.random.random(size=(100,)) * 200 - 100
     debug = False  # do not commit as True
     if debug:
         print("===========================================================================================================")
