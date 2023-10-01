@@ -47,6 +47,10 @@ def best_4_lin_reg(seed=1489683273):
     rand_low = 1
     rand_high = 101
     x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    """
+    Linear Regression works well with data where output is a linear function of input variables
+    Using the minimum number of rows(10) in training data X, linear reg is able to perform better than DT on linear Y
+    """
     y = x[:, 0] * 7 + x[:, 1] * -13
     debug = False  # do not commit as True
     if debug:
@@ -75,6 +79,10 @@ def best_4_dt(seed=1489683273):
     rand_low = 1
     rand_high = 100
     x = np.random.randint(low=rand_low, high=rand_high, size=(x_rows, x_cols))
+    """
+    DT works well where the target Y is a non linear function of input params X
+    DT works better with higher training data rows
+    """
     y = np.power(x[:, 0], 2) + np.sin(x[:, 1]) - np.tanh(x[:, 2]) + np.log(x[:, 3]) - np.sqrt(x[:, 4])
     debug = False  # do not commit as True
     if debug:
