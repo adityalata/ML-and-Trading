@@ -1,7 +1,6 @@
-import datetime as dt
-
 import pandas as pd
 
+from optimize_something.optimization import generate_portfolio_stats
 from util import get_data
 
 
@@ -174,27 +173,18 @@ def test_code():
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Process orders  		  	   		  		 		  		  		    	 		 		   		 		  
     portvals = compute_portvals(orders_file=of, start_val=sv, debug=True)
-    if isinstance(portvals, pd.DataFrame):  		  	   		  		 		  		  		    	 		 		   		 		  
-        portvals = portvals[portvals.columns[0]]  # just get the first column  		  	   		  		 		  		  		    	 		 		   		 		  
-    else:  		  	   		  		 		  		  		    	 		 		   		 		  
-        "warning, code did not return a DataFrame"  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Get portfolio stats  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Here we just fake the data. you should use your code from previous assignments.  		  	   		  		 		  		  		    	 		 		   		 		  
-    start_date = dt.datetime(2008, 1, 1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    end_date = dt.datetime(2008, 6, 1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    cum_ret, avg_daily_ret, std_daily_ret, sharpe_ratio = [  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.2,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.01,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.02,  		  	   		  		 		  		  		    	 		 		   		 		  
-        1.5,  		  	   		  		 		  		  		    	 		 		   		 		  
-    ]  		  	   		  		 		  		  		    	 		 		   		 		  
-    cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY = [  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.2,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.01,  		  	   		  		 		  		  		    	 		 		   		 		  
-        0.02,  		  	   		  		 		  		  		    	 		 		   		 		  
-        1.5,  		  	   		  		 		  		  		    	 		 		   		 		  
-    ]  		  	   		  		 		  		  		    	 		 		   		 		  
+
+    if isinstance(portvals, pd.DataFrame):
+        portvals = portvals[portvals.columns[0]]  # just get the first column
+    else:
+        raise Exception("warning, code did not return a DataFrame")
+
+    start_date = portvals.index[0]
+    end_date = portvals.index[-1]
+    cum_ret, avg_daily_ret, std_daily_ret, sharpe_ratio, dpv = generate_portfolio_stats(portvals.to_frame(), [1])
+
+    spy = get_data(['SPY'], pd.date_range(start_date, end_date))
+    cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY, dpv = generate_portfolio_stats(spy, [1])
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Compare portfolio against $SPX  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"Date Range: {start_date} to {end_date}")  		  	   		  		 		  		  		    	 		 		   		 		  
