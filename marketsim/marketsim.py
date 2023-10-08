@@ -130,6 +130,13 @@ def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact
         raise Exception("Unexpected order parameters")
 
 
+def evaluate_cumulative_position(cumulative_trade_df, daily_trade_df):
+    cumulative_trade_df.iloc[0] += daily_trade_df.iloc[0]  # initial day cumulative position will be same as trade position
+    for i in range(1, daily_trade_df.shape[0]):
+        cumulative_trade_df.iloc[i] = daily_trade_df.iloc[i] + cumulative_trade_df.iloc[i - 1]
+    return cumulative_trade_df
+
+
 def compute_portvals(
     orders_file="./orders/orders.csv",  		  	   		  		 		  		  		    	 		 		   		 		  
     start_val=1000000,  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -164,7 +171,8 @@ def compute_portvals(
     symbols_adj_close = get_adj_close_prices(symbols, start_date, end_date)
     daily_trade_df, cumulative_trade_df = initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val)
     for date, order in orders_dataframe.iterrows():
-        evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact, debug=debug)
+        evaluate_order(symbols_adj_close, daily_trade_df, date, order, commission, impact, debug=debug)
+    cumulative_trade_df = evaluate_cumulative_position(cumulative_trade_df, daily_trade_df)
 
 
     portvals = symbols_adj_close[["IBM"]]  # remove SPY
