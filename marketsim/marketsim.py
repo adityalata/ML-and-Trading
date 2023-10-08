@@ -53,7 +53,12 @@ def compute_portvals(
     :param impact: The amount the price moves against the trader compared to the historical data at each transaction  		  	   		  		 		  		  		    	 		 		   		 		  
     :type impact: float  		  	   		  		 		  		  		    	 		 		   		 		  
     :return: the result (portvals) as a single-column dataframe, containing the value of the portfolio for each trading day in the first column from start_date to end_date, inclusive.  		  	   		  		 		  		  		    	 		 		   		 		  
-    :rtype: pandas.DataFrame  		  	   		  		 		  		  		    	 		 		   		 		  
+    :rtype: pandas.DataFrame  		  	   		  		 		  		
+    
+    Given :   		    
+    In terms of execution prices, you should assume you get the adjusted close price for the day of the trade.	 	
+    The Sharpe ratio uses the sample standard deviation.
+    Note that negative shares and negative cash are possible. Negative shares mean that the portfolio is in a short position for that stock. Negative cash means that you’ve borrowed money from the broker. 	 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     # this is the function the autograder will call to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
     # NOTE: orders_file may be a string, or it may be a file object. Your  		  	   		  		 		  		  		    	 		 		   		 		  
