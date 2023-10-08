@@ -1,6 +1,6 @@
-import pandas as pd
+import math
 
-from optimize_something.optimization import generate_portfolio_stats
+import pandas as pd
 from util import get_data
 
 
@@ -158,9 +158,37 @@ def compute_portvals(
     cumulative_value_df = symbols_adj_close * cumulative_trade_df  # price * quantity = value
     portfolio_value_series = cumulative_value_df.sum(axis=1)  # portfolio value = sum(stock values, cash)
     return pd.DataFrame(index=portfolio_value_series.index, data=portfolio_value_series.values)
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
+
+
+def generate_portfolio_stats(portfolio_prices, allocations_list, initial_investment=1, risk_free_return=0, sample_frequency=252):
+    """
+    generate_portfolio_stats
+    :param initial_investment: default 1, if we just want stats, then since it's a constant, it would not affect
+    :param portfolio_prices:
+    :param allocations_list:
+    :param risk_free_return: default 0 based on Dr. B's comments in video
+    :param sample_frequency: default 252 for number of trading days in a year for SPY
+    Assume 252 trading days in a year and a risk-free return of 0.0 per day.
+    :return: A tuple containing the cumulative return, average daily returns,
+        standard deviation of daily returns, Sharpe ratio, daily Portfolio Valuation
+    """
+    normed_portfolio_prices = portfolio_prices/portfolio_prices.iloc[0]
+    alloced_normed_portfolio_prices = normed_portfolio_prices * allocations_list
+    portfolio_position_values = alloced_normed_portfolio_prices * initial_investment
+    portfolio_valuation = portfolio_position_values.sum(axis=1)
+
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pct_change.html
+    daily_returns = (portfolio_valuation.pct_change()).iloc[1:]  # since daily ret cant be defined for 1st day
+    cumulative_return = (portfolio_valuation[-1] / portfolio_valuation[0] - 1)
+    avg_daily_return = daily_returns.mean()
+    std_daily_return = daily_returns.std()
+    portfolio_return_diff_rfr = avg_daily_return-risk_free_return
+
+    sharpe_ratio = math.sqrt(sample_frequency) * portfolio_return_diff_rfr / std_daily_return
+    return cumulative_return, avg_daily_return, std_daily_return, sharpe_ratio, portfolio_valuation
+
+
+def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Helper function to test code  		  	   		  		 		  		  		    	 		 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
