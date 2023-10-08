@@ -68,7 +68,22 @@ def get_orderdf_stats(orders_dataframe):
     return start_date, end_date, symbols
 
 
-def compute_portvals(  		  	   		  		 		  		  		    	 		 		   		 		  
+def get_filled_adj_close_prices(symbols, start_date, end_date):
+    symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
+    symbols_adj_close.fillna(method='ffill', inplace=True)
+    symbols_adj_close.fillna(method='bfill', inplace=True)
+    return symbols_adj_close
+
+
+def initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val):
+    symbols_adj_close['Cash'] = 1.0  # add cash column
+    trades_df = symbols_adj_close.copy() * 0.0
+    holdings_df = symbols_adj_close.copy() * 0.0
+    holdings_df.at[start_date, 'Cash'] = start_val
+    return trades_df, holdings_df
+
+
+def compute_portvals(
     orders_file="./orders/orders.csv",  		  	   		  		 		  		  		    	 		 		   		 		  
     start_val=1000000,  		  	   		  		 		  		  		    	 		 		   		 		  
     commission=9.95,  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -97,9 +112,11 @@ def compute_portvals(
     # TODO: Your code here
     orders_dataframe = read_orders(orders_file)
     start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
-    symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
-    symbols_adj_close.fillna(method='ffill', inplace=True)
-    symbols_adj_close.fillna(method='bfill', inplace=True)
+    symbols_adj_close = get_filled_adj_close_prices(symbols, start_date, end_date)
+    trades_df, holdings_df = initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val)
+
+
+
 
     portvals = symbols_adj_close[["IBM"]]  # remove SPY
     rv = pd.DataFrame(index=portvals.index, data=portvals.values)
