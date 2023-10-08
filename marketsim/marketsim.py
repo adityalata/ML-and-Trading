@@ -87,12 +87,14 @@ def compute_portvals(
     orders_file="./orders/orders.csv",  		  	   		  		 		  		  		    	 		 		   		 		  
     start_val=1000000,  		  	   		  		 		  		  		    	 		 		   		 		  
     commission=9.95,  		  	   		  		 		  		  		    	 		 		   		 		  
-    impact=0.005,  		  	   		  		 		  		  		    	 		 		   		 		  
-):  		  	   		  		 		  		  		    	 		 		   		 		  
+    impact=0.005,
+    debug=False,
+):
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     Computes the portfolio values.  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-    :param orders_file: Path of the order file or the file object  		  	   		  		 		  		  		    	 		 		   		 		  
+    :param debug: flag to decide if logs are to be printed, default False
+    :param orders_file: Path of the order file or the file object
     :type orders_file: str or file object  		  	   		  		 		  		  		    	 		 		   		 		  
     :param start_val: The starting value of the portfolio  		  	   		  		 		  		  		    	 		 		   		 		  
     :type start_val: int  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -107,7 +109,7 @@ def compute_portvals(
     In terms of execution prices, you should assume you get the adjusted close price for the day of the trade.	 	
     The Sharpe ratio uses the sample standard deviation.
     Note that negative shares and negative cash are possible. Negative shares mean that the portfolio is in a short position for that stock. Negative cash means that you’ve borrowed money from the broker. 	 		   		 		  
-    """  		  	   		  		 		  		  		    	 		 		   		 		  
+    """
     # this is the function the autograder will call to test your code
     # TODO: Your code here
     orders_dataframe = read_orders(orders_file)
@@ -135,7 +137,7 @@ def test_code():
     sv = 1000000  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Process orders  		  	   		  		 		  		  		    	 		 		   		 		  
-    portvals = compute_portvals(orders_file=of, start_val=sv)  		  	   		  		 		  		  		    	 		 		   		 		  
+    portvals = compute_portvals(orders_file=of, start_val=sv, debug=True)
     if isinstance(portvals, pd.DataFrame):  		  	   		  		 		  		  		    	 		 		   		 		  
         portvals = portvals[portvals.columns[0]]  # just get the first column  		  	   		  		 		  		  		    	 		 		   		 		  
     else:  		  	   		  		 		  		  		    	 		 		   		 		  
