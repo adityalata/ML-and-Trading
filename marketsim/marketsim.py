@@ -116,15 +116,15 @@ def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact
                 order_type = "BUY"
 
     stock_price = symbols_adj_close.at[date, symbol]
-    total_price = stock_price * shares_count
-    transaction_cost = commission + (total_price * impact)
+    share_lot_price = stock_price * shares_count
+    transaction_cost = commission + (share_lot_price * impact)
     if order_type == 'BUY' and shares_count > 0:
         trades_df.at[date, symbol] += shares_count
-        cash_balance_outflow = total_price + transaction_cost
+        cash_balance_outflow = share_lot_price + transaction_cost
         trades_df.at[date, 'CashBalance'] -= cash_balance_outflow
     elif order_type == 'SELL' and shares_count > 0:  # selling / shorting a stock
         trades_df.at[date, symbol] -= shares_count
-        cash_balance_inflow = total_price - transaction_cost
+        cash_balance_inflow = share_lot_price - transaction_cost
         trades_df.at[date, 'CashBalance'] += cash_balance_inflow
     else:
         raise Exception("Unexpected order parameters")
