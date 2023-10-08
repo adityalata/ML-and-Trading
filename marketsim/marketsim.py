@@ -122,8 +122,18 @@ def test_code():
     print(f"Average Daily Return of Fund: {avg_daily_ret}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print(f"Average Daily Return of SPY : {avg_daily_ret_SPY}")  		  	   		  		 		  		  		    	 		 		   		 		  
     print()  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Final Portfolio Value: {portvals[-1]}")  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-if __name__ == "__main__":  		  	   		  		 		  		  		    	 		 		   		 		  
+    print(f"Final Portfolio Value: {portvals[-1]}")
+
+
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
+
+if __name__ == "__main__":
+    # will not be called to evaluate, this is only for testing
+    print(author())
     test_code()  		  	   		  		 		  		  		    	 		 		   		 		  
