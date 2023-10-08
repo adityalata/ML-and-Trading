@@ -32,9 +32,37 @@ import os
 import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 import pandas as pd  		  	   		  		 		  		  		    	 		 		   		 		  
-from util import get_data, plot_data  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
+from util import get_data, plot_data
+
+
+def read_orders(orders_file):
+    """
+    The files containing orders are CSV files with the following columns:
+    Date (yyyy-mm-dd)
+    Symbol (e.g. AAPL, GOOG)
+    Order (BUY or SELL)
+    Shares (no. of shares to trade)
+    :param orders_file: Path of the order file
+    :return: dataframe of sorted orders
+    :rtype: pandas.DataFrame
+    """
+    orders = pd.read_csv(orders_file, index_col=['Date'], dtype='|str, str, str,  i4', parse_dates=['Date'])
+    orders.sort_values(by="Date", inplace=True)
+    return orders
+
+
+def get_orderdf_stats(orders_dataframe):
+    """
+    Identify key stats for given orders and return
+    :param orders_dataframe: dataframe of orders
+    :return: start_date, end_date, and list of unique symbols
+    """
+    start_date = orders_dataframe.index[0]
+    end_date = orders_dataframe.index[-1]
+    symbols = list(orders_dataframe['Symbol'].unique())
+    return start_date, end_date, symbols
+
+
 def compute_portvals(  		  	   		  		 		  		  		    	 		 		   		 		  
     orders_file="./orders/orders.csv",  		  	   		  		 		  		  		    	 		 		   		 		  
     start_val=1000000,  		  	   		  		 		  		  		    	 		 		   		 		  
