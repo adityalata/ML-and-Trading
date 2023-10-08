@@ -64,7 +64,7 @@ def get_orderdf_stats(orders_dataframe):
     """
     start_date = orders_dataframe.index[0]
     end_date = orders_dataframe.index[-1]
-    symbols = list(orders_dataframe['Symbol'].unique())
+    symbols = list(orders_dataframe['Symbol'].unique())  # ndarray to list
     return start_date, end_date, symbols
 
 
@@ -131,7 +131,7 @@ def test_code():
     # note that during autograding his function will not be called.  		  	   		  		 		  		  		    	 		 		   		 		  
     # Define input parameters  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-    of = "./orders/orders2.csv"  		  	   		  		 		  		  		    	 		 		   		 		  
+    of = "./orders/orders-02.csv"
     sv = 1000000  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Process orders  		  	   		  		 		  		  		    	 		 		   		 		  
