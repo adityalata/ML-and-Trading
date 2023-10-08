@@ -1,38 +1,8 @@
-""""""  		  	   		  		 		  		  		    	 		 		   		 		  
-"""MC2-P1: Market simulator.  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-Copyright 2018, Georgia Institute of Technology (Georgia Tech)  		  	   		  		 		  		  		    	 		 		   		 		  
-Atlanta, Georgia 30332  		  	   		  		 		  		  		    	 		 		   		 		  
-All Rights Reserved  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-Template code for CS 4646/7646  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-Georgia Tech asserts copyright ownership of this template and all derivative  		  	   		  		 		  		  		    	 		 		   		 		  
-works, including solutions to the projects assigned in this course. Students  		  	   		  		 		  		  		    	 		 		   		 		  
-and other users of this template code are advised not to share it with others  		  	   		  		 		  		  		    	 		 		   		 		  
-or to make it available on publicly viewable websites including repositories  		  	   		  		 		  		  		    	 		 		   		 		  
-such as github and gitlab.  This copyright statement should not be removed  		  	   		  		 		  		  		    	 		 		   		 		  
-or edited.  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-We do grant permission to share solutions privately with non-students such  		  	   		  		 		  		  		    	 		 		   		 		  
-as potential employers. However, sharing with other current or future  		  	   		  		 		  		  		    	 		 		   		 		  
-students of CS 7646 is prohibited and subject to being investigated as a  		  	   		  		 		  		  		    	 		 		   		 		  
-GT honor code violation.  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
------do not edit anything above this line---  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-Student Name: Tucker Balch (replace with your name)  		  	   		  		 		  		  		    	 		 		   		 		  
-GT User ID: tb34 (replace with your User ID)  		  	   		  		 		  		  		    	 		 		   		 		  
-GT ID: 900897987 (replace with your GT ID)  		  	   		  		 		  		  		    	 		 		   		 		  
-"""  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-import datetime as dt  		  	   		  		 		  		  		    	 		 		   		 		  
-import os  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-import pandas as pd  		  	   		  		 		  		  		    	 		 		   		 		  
-from util import get_data, plot_data
+import datetime as dt
+
+import pandas as pd
+
+from util import get_data
 
 
 def read_orders(orders_file):
@@ -69,17 +39,29 @@ def get_orderdf_stats(orders_dataframe):
 
 
 def get_adj_close_prices(symbols, start_date, end_date):
+    """
+    :param symbols:
+    :param start_date:
+    :param end_date:
+    :return: dataframe with symbols as cols and rows with adj close prices between start and end date
+    """
     symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
     symbols_adj_close.dropna(inplace=True)  # todo check
     return symbols_adj_close
 
 
-def initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val):
+def initialize_daily_and_cumulative_trade_dfs(symbols_adj_close, start_date, start_val):
+    """
+    :param symbols_adj_close:
+    :param start_date:
+    :param start_val:
+    :return: dataframes with cols representing count of stock per symbol as part of portfolio and cash balance between start and end dates
+    """
     symbols_adj_close['CashBalance'] = 1.0  # add cash column
-    trades_df = symbols_adj_close.copy() * 0.0
-    holdings_df = symbols_adj_close.copy() * 0.0
-    holdings_df.at[start_date, 'CashBalance'] = start_val
-    return trades_df, holdings_df
+    daily_trade_df = symbols_adj_close.copy() * 0.0
+    cumulative_trade_df = symbols_adj_close.copy() * 0.0
+    cumulative_trade_df.at[start_date, 'CashBalance'] = start_val
+    return daily_trade_df, cumulative_trade_df
 
 
 def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact, debug=False):
@@ -169,7 +151,7 @@ def compute_portvals(
     orders_dataframe = read_orders(orders_file)
     start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
     symbols_adj_close = get_adj_close_prices(symbols, start_date, end_date)
-    daily_trade_df, cumulative_trade_df = initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val)
+    daily_trade_df, cumulative_trade_df = initialize_daily_and_cumulative_trade_dfs(symbols_adj_close, start_date, start_val)
     for date, order in orders_dataframe.iterrows():
         evaluate_order(symbols_adj_close, daily_trade_df, date, order, commission, impact, debug=debug)
     cumulative_trade_df = evaluate_cumulative_position(cumulative_trade_df, daily_trade_df)
@@ -188,7 +170,7 @@ def test_code():
     # note that during autograding his function will not be called.  		  	   		  		 		  		  		    	 		 		   		 		  
     # Define input parameters  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
-    of = "./orders/orders-02.csv"
+    of = "./orders/orders-01.csv"
     sv = 1000000  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
     # Process orders  		  	   		  		 		  		  		    	 		 		   		 		  
