@@ -156,10 +156,9 @@ def compute_portvals(
         evaluate_order(symbols_adj_close, daily_trade_df, date, order, commission, impact, debug=debug)
     cumulative_trade_df = evaluate_cumulative_position(cumulative_trade_df, daily_trade_df)
 
-
-    portvals = symbols_adj_close[["IBM"]]  # remove SPY
-    rv = pd.DataFrame(index=portvals.index, data=portvals.values)
-    return rv
+    cumulative_value_df = symbols_adj_close * cumulative_trade_df  # price * quantity = value
+    portfolio_value_series = cumulative_value_df.sum(axis=1)  # portfolio value = sum(stock values, cash)
+    return pd.DataFrame(index=portfolio_value_series.index, data=portfolio_value_series.values)
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
