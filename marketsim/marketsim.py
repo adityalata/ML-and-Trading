@@ -68,10 +68,9 @@ def get_orderdf_stats(orders_dataframe):
     return start_date, end_date, symbols
 
 
-def get_filled_adj_close_prices(symbols, start_date, end_date):
+def get_adj_close_prices(symbols, start_date, end_date):
     symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
-    symbols_adj_close.fillna(method='ffill', inplace=True)
-    symbols_adj_close.fillna(method='bfill', inplace=True)
+    symbols_adj_close.dropna(inplace=True)  # todo check
     return symbols_adj_close
 
 
@@ -84,7 +83,7 @@ def initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val):
 
 
 def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact, debug=False):
-    date, symbol, order_type, shares_count = order  # todo check unpack
+    symbol, order_type, shares_count = order
 
     # Data cleansing
     if pd.isnull(shares_count):
@@ -97,7 +96,7 @@ def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact
         return
     # Allow indicating buying and selling via shares_count. If shares is positive we buy and if it is negative we sell.
     if order_type == "":
-        if shares_count > 0 :
+        if shares_count > 0:
             if debug:
                 print("assuming BUY order since shares_count > 0")
             order_type = "BUY"
@@ -162,8 +161,8 @@ def compute_portvals(
     # TODO: Your code here
     orders_dataframe = read_orders(orders_file)
     start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
-    symbols_adj_close = get_filled_adj_close_prices(symbols, start_date, end_date)
-    trades_df, holdings_df = initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val)
+    symbols_adj_close = get_adj_close_prices(symbols, start_date, end_date)
+    daily_trade_df, cumulative_trade_df = initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val)
     for date, order in orders_dataframe.iterrows():
         evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact, debug=debug)
 
