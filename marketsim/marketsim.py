@@ -76,10 +76,10 @@ def get_filled_adj_close_prices(symbols, start_date, end_date):
 
 
 def initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val):
-    symbols_adj_close['Cash'] = 1.0  # add cash column
+    symbols_adj_close['CashBalance'] = 1.0  # add cash column
     trades_df = symbols_adj_close.copy() * 0.0
     holdings_df = symbols_adj_close.copy() * 0.0
-    holdings_df.at[start_date, 'Cash'] = start_val
+    holdings_df.at[start_date, 'CashBalance'] = start_val
     return trades_df, holdings_df
 
 
