@@ -83,6 +83,54 @@ def initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val):
     return trades_df, holdings_df
 
 
+def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact, debug=False):
+    date, symbol, order_type, shares_count = order  # todo check unpack
+
+    # Data cleansing
+    if pd.isnull(shares_count):
+        if debug:
+            print("shares_count is nan")
+        return
+    if shares_count == 0 and order_type == "":
+        if debug:
+            print("empty order")
+        return
+    # Allow indicating buying and selling via shares_count. If shares is positive we buy and if it is negative we sell.
+    if order_type == "":
+        if shares_count > 0 :
+            if debug:
+                print("assuming BUY order since shares_count > 0")
+            order_type = "BUY"
+        elif shares_count < 0:
+            if debug:
+                print("assuming SELL order since shares_count < 0")
+            order_type = "SELL"
+            shares_count = abs(shares_count)
+    else:
+        if shares_count < 0:
+            if debug:
+                print("found shares_count : ", shares_count, " < 0 , thus flipping order_type")
+            shares_count = abs(shares_count)
+            if order_type == "BUY":
+                order_type = "SELL"
+            elif order_type == "SELL":
+                order_type = "BUY"
+
+    stock_price = symbols_adj_close.at[date, symbol]
+    total_price = stock_price * shares_count
+    transaction_cost = commission + (total_price * impact)
+    if order_type == 'BUY' and shares_count > 0:
+        trades_df.at[date, symbol] += shares_count
+        cash_balance_outflow = total_price + transaction_cost
+        trades_df.at[date, 'CashBalance'] -= cash_balance_outflow
+    elif order_type == 'SELL' and shares_count > 0:  # selling / shorting a stock
+        trades_df.at[date, symbol] -= shares_count
+        cash_balance_inflow = total_price - transaction_cost
+        trades_df.at[date, 'CashBalance'] += cash_balance_inflow
+    else:
+        raise Exception("Unexpected order parameters")
+
+
 def compute_portvals(
     orders_file="./orders/orders.csv",  		  	   		  		 		  		  		    	 		 		   		 		  
     start_val=1000000,  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -116,8 +164,8 @@ def compute_portvals(
     start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
     symbols_adj_close = get_filled_adj_close_prices(symbols, start_date, end_date)
     trades_df, holdings_df = initialize_trades_holdings_dfs(symbols_adj_close, start_date, start_val)
-
-
+    for date, order in orders_dataframe.iterrows():
+        evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact, debug=debug)
 
 
     portvals = symbols_adj_close[["IBM"]]  # remove SPY
