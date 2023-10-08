@@ -134,6 +134,7 @@ def author():
 
 
 if __name__ == "__main__":
-    # will not be called to evaluate, this is only for testing
+    # will not be called to evaluate, this is only for testing using following command
+    # PYTHONPATH=../:. python grade_marketsim.py
     print(author())
     test_code()  		  	   		  		 		  		  		    	 		 		   		 		  
