@@ -42,13 +42,18 @@ def read_orders(orders_file):
     Symbol (e.g. AAPL, GOOG)
     Order (BUY or SELL)
     Shares (no. of shares to trade)
-    :param orders_file: Path of the order file
+    :param orders_file:  Path of the order file or the file object
     :return: dataframe of sorted orders
     :rtype: pandas.DataFrame
+    # TODO: NOTE: orders_file may be a string, or it may be a file object. Your code should work correctly with either input
+    # Note: The orders may not appear in sequential order in the file
     """
-    orders = pd.read_csv(orders_file, index_col=['Date'], dtype='|str, str, str,  i4', parse_dates=['Date'])
-    orders.sort_values(by="Date", inplace=True)
-    return orders
+    if isinstance(orders_file, pd.DataFrame):
+        return orders_file
+    else:
+        orders = pd.read_csv(orders_file, index_col=['Date'], dtype='|str, str, str,  i4', parse_dates=['Date'])
+        orders.sort_values(by="Date", inplace=True)
+        return orders
 
 
 def get_orderdf_stats(orders_dataframe):
@@ -88,15 +93,9 @@ def compute_portvals(
     The Sharpe ratio uses the sample standard deviation.
     Note that negative shares and negative cash are possible. Negative shares mean that the portfolio is in a short position for that stock. Negative cash means that you’ve borrowed money from the broker. 	 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
-    # this is the function the autograder will call to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
-    # TODO: NOTE: orders_file may be a string, or it may be a file object. Your code should work correctly with either input
-    # Note: The orders may not appear in sequential order in the file
+    # this is the function the autograder will call to test your code
     # TODO: Your code here
-    if isinstance(orders_file, pd.DataFrame):
-        orders_dataframe = orders_file
-    else:
-        orders_dataframe = read_orders(orders_file)
-
+    orders_dataframe = read_orders(orders_file)
     start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
     symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
     symbols_adj_close.fillna(method='ffill', inplace=True)
