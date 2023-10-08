@@ -89,20 +89,22 @@ def compute_portvals(
     Note that negative shares and negative cash are possible. Negative shares mean that the portfolio is in a short position for that stock. Negative cash means that you’ve borrowed money from the broker. 	 		   		 		  
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     # this is the function the autograder will call to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
-    # NOTE: orders_file may be a string, or it may be a file object. Your  		  	   		  		 		  		  		    	 		 		   		 		  
-    # code should work correctly with either input  		  	   		  		 		  		  		    	 		 		   		 		  
-    # TODO: Your code here  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # In the template, instead of computing the value of the portfolio, we just  		  	   		  		 		  		  		    	 		 		   		 		  
-    # read in the value of IBM over 6 months  		  	   		  		 		  		  		    	 		 		   		 		  
-    start_date = dt.datetime(2008, 1, 1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    end_date = dt.datetime(2008, 6, 1)  		  	   		  		 		  		  		    	 		 		   		 		  
-    portvals = get_data(["IBM"], pd.date_range(start_date, end_date))  		  	   		  		 		  		  		    	 		 		   		 		  
-    portvals = portvals[["IBM"]]  # remove SPY  		  	   		  		 		  		  		    	 		 		   		 		  
-    rv = pd.DataFrame(index=portvals.index, data=portvals.values)  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    return rv  		  	   		  		 		  		  		    	 		 		   		 		  
-    return portvals  		  	   		  		 		  		  		    	 		 		   		 		  
+    # TODO: NOTE: orders_file may be a string, or it may be a file object. Your code should work correctly with either input
+    # Note: The orders may not appear in sequential order in the file
+    # TODO: Your code here
+    if isinstance(orders_file, pd.DataFrame):
+        orders_dataframe = orders_file
+    else:
+        orders_dataframe = read_orders(orders_file)
+
+    start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
+    symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
+    symbols_adj_close.fillna(method='ffill', inplace=True)
+    symbols_adj_close.fillna(method='bfill', inplace=True)
+
+    portvals = symbols_adj_close[["IBM"]]  # remove SPY
+    rv = pd.DataFrame(index=portvals.index, data=portvals.values)
+    return rv
   		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 def test_code():  		  	   		  		 		  		  		    	 		 		   		 		  
