@@ -14,7 +14,7 @@ def read_orders(orders_file):
     :param orders_file:  Path of the order file or the file object
     :return: dataframe of sorted orders
     :rtype: pandas.DataFrame
-    # TODO: NOTE: orders_file may be a string, or it may be a file object. Your code should work correctly with either input
+    # NOTE: orders_file may be a string, or it may be a file object. Your code should work correctly with either input
     # Note: The orders may not appear in sequential order in the file
     """
     if isinstance(orders_file, pd.DataFrame):
@@ -45,7 +45,7 @@ def get_adj_close_prices(symbols, start_date, end_date):
     :return: dataframe with symbols as cols and rows with adj close prices between start and end date
     """
     symbols_adj_close = get_data(symbols=symbols, dates=pd.date_range(start_date, end_date), addSPY=False)
-    symbols_adj_close.dropna(inplace=True)  # todo check
+    symbols_adj_close.dropna(inplace=True)  # todo check if we would ever need ff or backfill
     return symbols_adj_close
 
 
@@ -56,7 +56,7 @@ def initialize_daily_and_cumulative_trade_dfs(symbols_adj_close, start_date, sta
     :param start_val:
     :return: dataframes with cols representing count of stock per symbol as part of portfolio and cash balance between start and end dates
     """
-    symbols_adj_close['CashBalance'] = 1.0  # add cash column
+    symbols_adj_close['CashBalance'] = 0.0  # add cash column todo check result effect with 1 or 0 init
     daily_trade_df = symbols_adj_close.copy() * 0.0
     cumulative_trade_df = symbols_adj_close.copy() * 0.0
     cumulative_trade_df.at[start_date, 'CashBalance'] = start_val
@@ -95,8 +95,11 @@ def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact
                 order_type = "SELL"
             elif order_type == "SELL":
                 order_type = "BUY"
+            else:
+                if debug:
+                    print("negative share count : ", shares_count, " order received with unknown order type : ", order_type)
 
-    stock_price = symbols_adj_close.at[date, symbol]
+    stock_price = symbols_adj_close.at[date, symbol]  # todo what if adj close price doesnt exist for given order date
     share_lot_price = stock_price * shares_count
     transaction_cost = commission + (share_lot_price * impact)
     if order_type == 'BUY' and shares_count > 0:
@@ -107,8 +110,8 @@ def evaluate_order(symbols_adj_close, trades_df, date, order, commission, impact
         trades_df.at[date, symbol] -= shares_count
         cash_balance_inflow = share_lot_price - transaction_cost
         trades_df.at[date, 'CashBalance'] += cash_balance_inflow
-    else:
-        raise Exception("Unexpected order parameters")
+    elif debug:
+        print("Unexpected order parameters, shares_count: ", shares_count, " order_type : ", order_type)
 
 
 def evaluate_cumulative_position(cumulative_trade_df, daily_trade_df):
@@ -146,7 +149,6 @@ def compute_portvals(
     Note that negative shares and negative cash are possible. Negative shares mean that the portfolio is in a short position for that stock. Negative cash means that you’ve borrowed money from the broker. 	 		   		 		  
     """
     # this is the function the autograder will call to test your code
-    # TODO: Your code here
     orders_dataframe = read_orders(orders_file)
     start_date, end_date, symbols = get_orderdf_stats(orders_dataframe)
     symbols_adj_close = get_adj_close_prices(symbols, start_date, end_date)
@@ -155,7 +157,7 @@ def compute_portvals(
         evaluate_order(symbols_adj_close, daily_trade_df, date, order, commission, impact, debug=debug)
     cumulative_trade_df = evaluate_cumulative_position(cumulative_trade_df, daily_trade_df)
 
-    cumulative_value_df = symbols_adj_close * cumulative_trade_df  # price * quantity = value
+    cumulative_value_df = symbols_adj_close * cumulative_trade_df  # value = price * quantity
     portfolio_value_series = cumulative_value_df.sum(axis=1)  # portfolio value = sum(stock values, cash)
     return pd.DataFrame(index=portfolio_value_series.index, data=portfolio_value_series.values)
 
