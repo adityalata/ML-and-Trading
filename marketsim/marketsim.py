@@ -196,12 +196,53 @@ def test_code():
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     # this is a helper function you can use to test your code  		  	   		  		 		  		  		    	 		 		   		 		  
     # note that during autograding his function will not be called.  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Define input parameters  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    of = "./orders/orders-01.csv"
-    sv = 1000000  		  	   		  		 		  		  		    	 		 		   		 		  
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Process orders  		  	   		  		 		  		  		    	 		 		   		 		  
+    # Define input parameters
+    for i in range(1, 13):
+        of = "./orders/orders-"
+        if i < 10:
+            of += '0'
+        of += str(i)
+        of += ".csv"
+        sv = 1000000
+        print("testing for orders file : ", of, " with sv ", sv)
+        test_process_order(of, sv)
+
+    for i in range(1, 13):
+        of = "./orders/testcases_mc2p1/orders-"
+        if i < 10:
+            of += '0'
+        of += str(i)
+        of += ".csv"
+        sv = 1000000
+        print("testing for orders file : ", of, " with sv ", sv)
+        test_process_order(of, sv)
+
+    for i in range(1, 4):
+        of = "./orders/testcases_mc2p1/orders-leverage-"
+        of += str(i)
+        of += ".csv"
+        sv = 1000000
+        print("testing for orders file : ", of, " with sv ", sv)
+        test_process_order(of, sv)
+
+    of = "./orders/additional_orders/orders.csv"
+    sv = 1000000
+    print("testing for orders file : ", of, " with sv ", sv)
+    test_process_order(of, sv)
+
+    of = "./orders/additional_orders/orders2.csv"
+    sv = 1000000
+    print("testing for orders file : ", of, " with sv ", sv)
+    test_process_order(of, sv)
+
+    of = "./orders/additional_orders/orders-short.csv"
+    sv = 1000000
+    print("testing for orders file : ", of, " with sv ", sv)
+    test_process_order(of, sv)
+
+
+def test_process_order(of, sv):
+    # Process orders
     portvals = compute_portvals(orders_file=of, start_val=sv, debug=True)
 
     if isinstance(portvals, pd.DataFrame):
@@ -215,22 +256,22 @@ def test_code():
 
     spy = get_data(['SPY'], pd.date_range(start_date, end_date))
     cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY, dpv = generate_portfolio_stats(spy, [1])
-  		  	   		  		 		  		  		    	 		 		   		 		  
-    # Compare portfolio against $SPX  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Date Range: {start_date} to {end_date}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print()  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Sharpe Ratio of Fund: {sharpe_ratio}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Sharpe Ratio of SPY : {sharpe_ratio_SPY}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print()  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Cumulative Return of Fund: {cum_ret}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Cumulative Return of SPY : {cum_ret_SPY}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print()  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Standard Deviation of Fund: {std_daily_ret}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Standard Deviation of SPY : {std_daily_ret_SPY}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print()  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Average Daily Return of Fund: {avg_daily_ret}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print(f"Average Daily Return of SPY : {avg_daily_ret_SPY}")  		  	   		  		 		  		  		    	 		 		   		 		  
-    print()  		  	   		  		 		  		  		    	 		 		   		 		  
+
+    # Compare portfolio against $SPX
+    print(f"Date Range: {start_date} to {end_date}")
+    print()
+    print(f"Sharpe Ratio of Fund: {sharpe_ratio}")
+    print(f"Sharpe Ratio of SPY : {sharpe_ratio_SPY}")
+    print()
+    print(f"Cumulative Return of Fund: {cum_ret}")
+    print(f"Cumulative Return of SPY : {cum_ret_SPY}")
+    print()
+    print(f"Standard Deviation of Fund: {std_daily_ret}")
+    print(f"Standard Deviation of SPY : {std_daily_ret_SPY}")
+    print()
+    print(f"Average Daily Return of Fund: {avg_daily_ret}")
+    print(f"Average Daily Return of SPY : {avg_daily_ret_SPY}")
+    print()
     print(f"Final Portfolio Value: {portvals[-1]}")
 
 
