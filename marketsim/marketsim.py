@@ -56,7 +56,7 @@ def initialize_daily_and_cumulative_trade_dfs(symbols_adj_close, start_date, sta
     :param start_val:
     :return: dataframes with cols representing count of stock per symbol as part of portfolio and cash balance between start and end dates
     """
-    symbols_adj_close['CashBalance'] = 0.0  # add cash column todo check result effect with 1 or 0 init
+    symbols_adj_close['CashBalance'] = 1.0  # add cash column
     daily_trade_df = symbols_adj_close.copy() * 0.0
     cumulative_trade_df = symbols_adj_close.copy() * 0.0
     cumulative_trade_df.at[start_date, 'CashBalance'] = start_val
