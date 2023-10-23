@@ -10,7 +10,14 @@ from ManualStrategy import ManualStrategy
 from TheoreticallyOptimalStrategy import TheoreticallyOptimalStrategy
 from indicators import Indicators
 
-#
+
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
 
 if __name__ == '__main__':
     ms = ManualStrategy()

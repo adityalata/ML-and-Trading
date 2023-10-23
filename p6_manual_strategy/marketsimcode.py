@@ -5,6 +5,14 @@
 import pandas as pd
 from util import get_data
 
+
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
 #
 def compute_portvals(orders, start_val=1000000, commission=9.95, impact=0.005):
     start_date = orders.index[0]

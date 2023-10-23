@@ -8,6 +8,13 @@ class Indicators(object):
     def __init__(self):
         pass
 
+    def author(self):
+        """
+        :return: The GT username of the student
+        :rtype: str
+        """
+        return "alata6"  # replace tb34 with your Georgia Tech username
+
     #
     def generate_charts(self):
         start_date = dt.datetime(2008, 1, 1)
