@@ -45,7 +45,7 @@ from grading.grading import (
 from util import get_data, get_orders_data_file  		  	   		  		 		  		  		    	 		 		   		 		  
   		  	   		  		 		  		  		    	 		 		   		 		  
 # Student code  		  	   		  		 		  		  		    	 		 		   		 		  
-main_code = "marketsim"  # module name to import  		  	   		  		 		  		  		    	 		 		   		 		  
+main_code = "p5_marketsim"  # module name to import
   		  	   		  		 		  		  		    	 		 		   		 		  
 # Test cases  		  	   		  		 		  		  		    	 		 		   		 		  
 MarketsimTestCase = namedtuple(  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -423,7 +423,7 @@ def test_marketsim(description, group, inputs, outputs, grader):
                 row[2],  		  	   		  		 		  		  		    	 		 		   		 		  
                 row[3],  		  	   		  		 		  		  		    	 		 		   		 		  
             )  # show only filename instead of long absolute path  		  	   		  		 		  		  		    	 		 		   		 		  
-        tb_list = [row for row in tb_list if row[0] == "marketsim.py"]  		  	   		  		 		  		  		    	 		 		   		 		  
+        tb_list = [row for row in tb_list if row[0] == "p5_marketsim.py"]
         if tb_list:  		  	   		  		 		  		  		    	 		 		   		 		  
             msg += "Traceback:\n"  		  	   		  		 		  		  		    	 		 		   		 		  
             msg += "".join(tb.format_list(tb_list))  # contains newlines  		  	   		  		 		  		  		    	 		 		   		 		  
