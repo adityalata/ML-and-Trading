@@ -30,8 +30,8 @@ class ManualStrategy(object):
         dates = pd.date_range(sd, ed)
         prices = get_data([symbol], dates).drop(['SPY'], axis=1)
 
-        _, sma_df = self.ind.sma(prices=prices, lookback=lookback, make_plot=False)
-        bb_df, bbp_df = self.ind.bbp(prices=prices, lookback=lookback, make_plot=False)
+        _, sma_df = self.ind.simple_moving_average(prices=prices, lookback=lookback, make_plot=False)
+        bb_df, bbp_df = self.ind.bollinger_band_percentage(prices=prices, lookback=lookback, make_plot=False)
         macd_df = self.ind.macd(prices, False)
 
         manual_orders = prices.copy()
