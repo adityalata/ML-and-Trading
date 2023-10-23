@@ -109,7 +109,7 @@ class TheoreticallyOptimalStrategy(object):
 
         portval_df = pd.concat([benchmark_portval, tos_portval], axis=1)
 
-        portval_graph = portval_df.plot(title="Benchmark & Theoretically Optimal Portfolio Value", fontsize=12, grid=True, color=['blue', 'black'])
+        portval_graph = portval_df.plot(title="Benchmark & Theoretically Optimal Portfolio Value - alata6", fontsize=12, grid=True, color=['blue', 'black'])
         portval_graph.set_xlabel('Date')
         portval_graph.set_ylabel('Normalized Portfolio Value ($)')
 
