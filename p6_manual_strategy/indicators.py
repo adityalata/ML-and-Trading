@@ -1,7 +1,7 @@
 import datetime as dt
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import get_data
+from util import get_data, symbol_to_path
 
 
 class Indicators(object):
@@ -16,10 +16,11 @@ class Indicators(object):
         lookback = 14
         symbols = ['JPM']
         prices = get_data(symbols, dates).drop(['SPY'], axis=1)
+        all_data = self.get_all_data(symbols, dates, addSPY=False)
         self.simple_moving_average(prices=prices, lookback=lookback, make_plot=True)
         self.bollinger_band_percentage(prices, lookback, True)
         self.macd(prices, True)
-        self.commodity_channel_index(prices, True)
+        self.commodity_channel_index(all_data, True)
 
     """
     Simple moving averages (SMAs) are an average of prices over the specified timeframe
@@ -106,12 +107,41 @@ class Indicators(object):
     def commodity_channel_index(self, prices, make_plot, ndays=20):
         prices['TP'] = (prices['High'] + prices['Low'] + prices['Close']) / 3
         prices['sma'] = prices['TP'].rolling(ndays).mean()
-        prices['mad'] = prices['TP'].rolling(ndays).apply(lambda x: pd.Series(x).mad())
+        prices['mad'] = prices['TP'].rolling(ndays).apply(lambda x: pd.Series(x).mad(), raw=False)
         prices['CCI'] = (prices['TP'] - prices['sma']) / (0.015 * prices['mad'])
 
+        cci_df = prices.copy()
+        cci_df.drop(cci_df.iloc[:, 0:-1], inplace=True, axis=1)
+        cci_df['CCI'] = cci_df['CCI'] / cci_df['CCI'].iloc[ndays-1]  # normalized
+        adj_close_prices = prices['Adj Close']
+        cci_df['Prices'] = adj_close_prices / adj_close_prices.iloc[0]  # normalized
+
         if make_plot:
-            cci_graph = prices['CCI'].plot(title='Commodity Channel Index for JPM - alata6', fontsize=12,
+            cci_graph = cci_df.plot(title='Commodity Channel Index for JPM - alata6', fontsize=12,
                                       grid=True)
             cci_graph.set_xlabel('Date')
             cci_graph.set_ylabel('Normalized $ Value')
             plt.savefig('Figure_7.png')
+
+        return cci_df
+
+    def get_all_data(self, symbols, dates, addSPY=True):
+        """Read stock data for given symbols from CSV files."""
+        df = pd.DataFrame(index=dates)
+        if addSPY and "SPY" not in symbols:  # add SPY for reference, if absent
+            symbols = ["SPY"] + list(
+                symbols
+            )  # handles the case where symbols is np array of 'object'
+
+        for symbol in symbols:
+            df_temp = pd.read_csv(
+                symbol_to_path(symbol),
+                index_col="Date",
+                parse_dates=True,
+                na_values=["nan"],
+            )
+            df = df.join(df_temp)
+            if symbol == "SPY":  # drop dates SPY did not trade
+                df = df.dropna(subset=["SPY"])
+            df.dropna(inplace=True)
+        return df
