@@ -19,6 +19,7 @@ class Indicators(object):
         self.simple_moving_average(prices=prices, lookback=lookback, make_plot=True)
         self.bollinger_band_percentage(prices, lookback, True)
         self.macd(prices, True)
+        self.commodity_channel_index(prices, True)
 
     """
     Simple moving averages (SMAs) are an average of prices over the specified timeframe
@@ -68,7 +69,7 @@ class Indicators(object):
             ax1.set_title('Bollinger Bands Against JPM Price Data - alata6')
             ax1.legend(prop={'size': '10'}, loc=4)
             ax1.set(ylabel='$ Value')
-            ax2.set_title('Bollinger Band % for JPM')
+            ax2.set_title('Bollinger Band % for JPM - alata6')
             ax2.legend(prop={'size': '10'}, loc=4)
             ax2.set(ylabel='% Value')
             plt.xlabel('Date')
@@ -96,3 +97,21 @@ class Indicators(object):
             plt.savefig('Figure_3.png')
 
         return macd_df
+
+    """
+        CCI measures the current price level relative to an average price level over a given period of time. 
+        CCI is relatively high when prices are far above their average, but is relatively low when prices are far below their average. 
+        In this manner, CCI can be used to identify overbought and oversold levels.
+    """
+    def commodity_channel_index(self, prices, make_plot, ndays=20):
+        prices['TP'] = (prices['High'] + prices['Low'] + prices['Close']) / 3
+        prices['sma'] = prices['TP'].rolling(ndays).mean()
+        prices['mad'] = prices['TP'].rolling(ndays).apply(lambda x: pd.Series(x).mad())
+        prices['CCI'] = (prices['TP'] - prices['sma']) / (0.015 * prices['mad'])
+
+        if make_plot:
+            cci_graph = prices['CCI'].plot(title='Commodity Channel Index for JPM - alata6', fontsize=12,
+                                      grid=True)
+            cci_graph.set_xlabel('Date')
+            cci_graph.set_ylabel('Normalized $ Value')
+            plt.savefig('Figure_7.png')
