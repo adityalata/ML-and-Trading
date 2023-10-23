@@ -20,6 +20,7 @@ class Indicators(object):
         self.simple_moving_average(prices=prices, lookback=lookback, make_plot=True)
         self.bollinger_band_percentage(prices, lookback, True)
         self.macd(prices, True)
+        self.stochastic_osc(all_data, make_plot=True)
         self.commodity_channel_index(all_data, True)
 
     """
@@ -99,6 +100,39 @@ class Indicators(object):
 
         return macd_df
 
+
+    """
+    The stochastic oscillator is a momentum indicator used to signal trend reversals in the stock market. 
+       It describes the current price relative to the high and low prices over a trailing number of previous trading periods.
+       fast_period : previous days we want to use to generate our fast signal
+       slow_period : previous days we want to use to generate our slow signal
+    """
+    def stochastic_osc(self, symbol_df, fast_period=14, slow_period=3, make_plot=False):
+        # Adds a "n_high" column with max value of previous 14 periods
+        symbol_df['n_high'] = symbol_df['High'].rolling(fast_period).max()
+        # Adds an "n_low" column with min value of previous 14 periods
+        symbol_df['n_low'] = symbol_df['Low'].rolling(fast_period).min()
+        # Uses the min/max values to calculate the %k (as a percentage)
+        symbol_df['%K'] = (symbol_df['Close'] - symbol_df['n_low']) * 100 / (symbol_df['n_high'] - symbol_df['n_low'])
+        # Uses the %k to calculates a SMA over the past 3 values of %k
+        symbol_df['%D'] = symbol_df['%K'].rolling(slow_period).mean()
+
+        stoch_df = symbol_df.copy()
+        stoch_df.drop(stoch_df.iloc[:, 0:-2], inplace=True, axis=1)
+        stoch_df['%K norm'] = stoch_df['%K'] / stoch_df['%K'].iloc[0]  # normalized
+        stoch_df['%D norm'] = stoch_df['%D'] / stoch_df['%D'].iloc[0]  # normalized
+        adj_close_prices = symbol_df['Adj Close']
+        stoch_df['Prices'] = adj_close_prices / adj_close_prices.iloc[0]  # normalized
+
+        if make_plot:
+            stoch_graph = stoch_df.plot(title='Stochastic Oscillator for JPM - alata6', fontsize=12,
+                                    grid=True)
+            stoch_graph.set_xlabel('Date')
+            stoch_graph.set_ylabel('Normalized $ Value')
+            plt.savefig('Figure_7.png')
+
+        return stoch_df
+
     """
         CCI measures the current price level relative to an average price level over a given period of time. 
         CCI is relatively high when prices are far above their average, but is relatively low when prices are far below their average. 
@@ -121,7 +155,7 @@ class Indicators(object):
                                       grid=True)
             cci_graph.set_xlabel('Date')
             cci_graph.set_ylabel('Normalized $ Value')
-            plt.savefig('Figure_7.png')
+            plt.savefig('Figure_8.png')
 
         return cci_df
 
