@@ -12,11 +12,13 @@ class Indicators(object):
     def generate_charts(self):
         start_date = dt.datetime(2008, 1, 1)
         end_date = dt.datetime(2009, 12, 31)
+        shorter_end_date = dt.datetime(2008, 9, 30)
         dates = pd.date_range(start_date, end_date)
+        shorter_range = pd.date_range(start_date, shorter_end_date)
         lookback = 14
         symbols = ['JPM']
         prices = get_data(symbols, dates).drop(['SPY'], axis=1)
-        all_data = self.get_all_data(symbols, dates, addSPY=False)
+        all_data = self.get_all_data(symbols, shorter_range, addSPY=False)
         self.simple_moving_average(prices=prices, lookback=lookback, make_plot=True)
         self.bollinger_band_percentage(prices, lookback, True)
         self.macd(prices, True)
@@ -119,8 +121,9 @@ class Indicators(object):
 
         stoch_df = symbol_df.copy()
         stoch_df.drop(stoch_df.iloc[:, 0:-2], inplace=True, axis=1)
-        stoch_df['%K norm'] = stoch_df['%K'] / stoch_df['%K'].iloc[0]  # normalized
-        stoch_df['%D norm'] = stoch_df['%D'] / stoch_df['%D'].iloc[0]  # normalized
+        stoch_df['%K norm'] = stoch_df['%K'] / stoch_df['%K'].iloc[fast_period-1]  # normalized
+        stoch_df['%D norm'] = stoch_df['%D'] / stoch_df['%D'].iloc[fast_period+slow_period-2]  # normalized
+        stoch_df.drop(stoch_df.iloc[:, 0:2], inplace=True, axis=1)
         adj_close_prices = symbol_df['Adj Close']
         stoch_df['Prices'] = adj_close_prices / adj_close_prices.iloc[0]  # normalized
 
@@ -128,7 +131,7 @@ class Indicators(object):
             stoch_graph = stoch_df.plot(title='Stochastic Oscillator for JPM - alata6', fontsize=12,
                                     grid=True)
             stoch_graph.set_xlabel('Date')
-            stoch_graph.set_ylabel('Normalized $ Value')
+            stoch_graph.set_ylabel('Normalized Values')
             plt.savefig('Figure_7.png')
 
         return stoch_df
@@ -154,7 +157,7 @@ class Indicators(object):
             cci_graph = cci_df.plot(title='Commodity Channel Index for JPM - alata6', fontsize=12,
                                       grid=True)
             cci_graph.set_xlabel('Date')
-            cci_graph.set_ylabel('Normalized $ Value')
+            cci_graph.set_ylabel('Normalized Values')
             plt.savefig('Figure_8.png')
 
         return cci_df
