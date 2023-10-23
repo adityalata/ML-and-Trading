@@ -14,7 +14,8 @@ class Indicators(object):
         end_date = dt.datetime(2009, 12, 31)
         dates = pd.date_range(start_date, end_date)
         lookback = 14
-        prices = get_data(['JPM'], dates, addSPY=False)
+        symbols = ['JPM']
+        prices = get_data(symbols, dates).drop(['SPY'], axis=1)
         self.simple_moving_average(prices=prices, lookback=lookback, make_plot=True)
         self.bollinger_band_percentage(prices, lookback, True)
         self.macd(prices, True)
