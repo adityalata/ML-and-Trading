@@ -28,7 +28,16 @@ GT ID: 903952381 (replace with your GT ID)
 """
 
 import random as rand
+
 import numpy as np
+
+
+def gtid():
+    """
+    :return: The GT ID of the student
+    :rtype: int
+    """
+    return 903952381  # replace with your GT ID number
 
 
 class QLearner(object):
@@ -37,7 +46,7 @@ class QLearner(object):
 
        :param num_states: The number of states to consider.
        :type num_states: int
-       :param num_actions: The number of actions available..
+       :param num_actions: The number of actions available.
        :type num_actions: int
        :param alpha: The learning rate used in the update rule. Should range between 0.0 and 1.0 with 0.2 as a typical value.
        :type alpha: float
@@ -62,13 +71,14 @@ class QLearner(object):
         self.num_actions = num_actions
         self.s = 0
         self.a = 0
-        self.rar = rar
-        self.radr = radr
+        self.random_action_rate = rar
+        self.random_action_decay_rate = radr
         self.alpha = alpha
         self.gamma = gamma
         self.dyna = dyna
         self.q_table = np.zeros((num_states, num_actions))  # 2D array holding Q values
-        self.experience_list = []  # store experience tuples
+        self.experience_list = []  # list to store experience tuples
+        np.random.seed(gtid())
 
     #
     def querysetstate(self, s):
@@ -81,7 +91,10 @@ class QLearner(object):
         :rtype: int
         """
         self.s = s  # setting new state
-        action = rand.randint(0, self.num_actions - 1) if rand.random() < self.rar else np.argmax(self.q_table[s])  # choose random action or action with best Q value
+        if rand.random() < self.random_action_rate:  # choosing random action
+            action = rand.randint(0, self.num_actions - 1)
+        else:
+            action = np.argmax(self.q_table[s])  # choosing action with best Q value
 
         if self.verbose:
             print('querysetstate : ', ' s = ', s, ' a = ', action)
@@ -104,15 +117,17 @@ class QLearner(object):
         self.q_table[self.s, self.a] = self.get_new_q_value(self.s, self.a, s_prime, r)
         self.experience_list.append((self.s, self.a, s_prime, r))
 
-        if self.dyna != 0:
-            for _ in range(self.dyna):  # hallucinate
-                rand_exp = self.experience_list[rand.randint(0, len(self.experience_list) - 1)]  # randomly select experience tuple
-                dyna_s, dyna_a, dyna_s_prime, dyna_r = rand_exp[0], rand_exp[1], rand_exp[2], rand_exp[3]
-                self.q_table[dyna_s, dyna_a] = self.get_new_q_value(dyna_s, dyna_a, dyna_s_prime, dyna_r)
+        if self.dyna != 0:  # hallucinate
+            for _ in range(self.dyna):  # number of dyna updates for each regular update
+                random_experience = self.experience_list[rand.randint(0, len(self.experience_list) - 1)]  # randomly select experience tuple
+                self.q_table[random_experience[0], random_experience[1]] = self.get_new_q_value(random_experience[0], random_experience[1], random_experience[2], random_experience[3])
 
-        action = rand.randint(0, self.num_actions - 1) if rand.random() < self.rar else np.argmax(self.q_table[s_prime])  # choose random or best action
+        if rand.random() < self.random_action_rate:  # choosing random action
+            action = rand.randint(0, self.num_actions - 1)
+        else:
+            action = np.argmax(self.q_table[s_prime])  # choosing action with best Q value
 
-        self.rar *= self.radr
+        self.random_action_rate *= self.random_action_decay_rate
         self.s = s_prime
         self.a = action
 
@@ -122,16 +137,12 @@ class QLearner(object):
         return action
 
     #
-    def get_new_q_value(self, s, a, s_prime, r):
+    def get_new_q_value(self, s, a, s_prime, immediate_reward):
         """
             :return: the new Q value for given current state and action
         """
-
-        best_action = np.argmax(self.q_table[s_prime])
-        curr_q = self.q_table[s, a]
-        max_q = self.q_table[s_prime, best_action]
-
-        return (1 - self.alpha) * curr_q + self.alpha * (r + self.gamma * max_q)
+        max_q = self.q_table[s_prime, np.argmax(self.q_table[s_prime])]
+        return (1 - self.alpha) * self.q_table[s, a] + self.alpha * (immediate_reward + self.gamma * max_q)
 
     def author(self):
         """
