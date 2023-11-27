@@ -149,7 +149,7 @@ class StrategyLearner(object):
                     if total_holdings == 0:  # long
                         updated_order.at[date, 'Shares'] = 1000
                         total_holdings += 1000
-                    elif total_holdings == -1000:  # todo 2000?
+                    elif total_holdings == -1000:
                         updated_order.at[date, 'Shares'] = 1000
                         total_holdings += 1000
 
@@ -157,7 +157,7 @@ class StrategyLearner(object):
                     if total_holdings == 0:  # short
                         updated_order.at[date, 'Shares'] = -1000
                         total_holdings -= 1000
-                    elif total_holdings == 1000:  # todo 2000?
+                    elif total_holdings == 1000:
                         updated_order.at[date, 'Shares'] = -1000
                         total_holdings -= 1000
 
@@ -239,7 +239,7 @@ class StrategyLearner(object):
                 if total_holdings == 0:  # long
                     orders.at[date, 'Shares'] = 1000
                     total_holdings += 1000
-                elif total_holdings == -1000:  # todo test 2000
+                elif total_holdings == -1000:
                     orders.at[date, 'Shares'] = 1000
                     total_holdings += 1000
 
@@ -247,7 +247,7 @@ class StrategyLearner(object):
                 if total_holdings == 0:  # short
                     orders.at[date, 'Shares'] = -1000
                     total_holdings -= 1000
-                elif total_holdings == 1000:  # todo test 2000
+                elif total_holdings == 1000:
                     orders.at[date, 'Shares'] = -1000
                     total_holdings -= 1000
 

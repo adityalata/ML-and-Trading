@@ -21,7 +21,7 @@ def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 3
     sl = StrategyLearner(impact=impact)
     sl.add_evidence(symbol=symbol, sd=sd, ed=ed, sv=100000)
 
-    trades = sl.test_policy(symbol=symbol, sd=sd, ed=ed, sv=100000)
+    trades = sl.testPolicy(symbol=symbol, sd=sd, ed=ed, sv=100000)
     trades['Symbol'] = symbol
     trades['Order'] = 'BUY'
 
@@ -46,11 +46,11 @@ def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 3
 def exp2():
     impact = 0.002
     chart_dfs = []
-
-    print("In Sample")
+    print("=======================================================")
+    print("In Sample - exp2")
     print("Date Range: {} to {}".format(dt.datetime(2008, 1, 1), dt.datetime(2009, 12, 31)))
 
-    for i in range(5):
+    for i in range(10):
         strategy_portval, strategy_trades = compare(impact=impact)
 
         # strategy learner values
@@ -59,7 +59,7 @@ def exp2():
         strategy_adr = strategy_portval.pct_change(1).mean()['Strategy Learner PortVal']
         strategy_sddr = strategy_portval.pct_change(1).std()['Strategy Learner PortVal']
         strategy_sr = math.sqrt(252.0) * (strategy_adr / float(strategy_sddr))
-
+        print("=======================================================")
         print("Cumulative Return of Strategy (Impact: " + str(impact) + "): {}".format(strategy_cr))
         print("Standard Deviation of Strategy (Impact: " + str(impact) + "): {}".format(strategy_sddr))
         print("Average Daily Return of Strategy (Impact: " + str(impact) + "): {}".format(strategy_adr))
@@ -69,7 +69,7 @@ def exp2():
         strategy_portval.rename(columns={"Strategy Learner PortVal": "Impact: " + str(impact)}, inplace=True)
         chart_dfs.append(strategy_portval)
 
-        impact += 0.002
+        impact *= 2
 
     portval_df = pd.concat(chart_dfs, axis=1)
 

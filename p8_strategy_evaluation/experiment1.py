@@ -6,16 +6,15 @@
     - Run the command `PYTHONPATH=../:. python experiment1.py`
 """
 
-import math
 import datetime as dt
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import math
 
-from util import get_data, plot_data
-from marketsimcode import compute_portvals
+import matplotlib.pyplot as plt
+import pandas as pd
+
 from ManualStrategy import ManualStrategy
 from StrategyLearner import StrategyLearner
+from marketsimcode import compute_portvals
 
 
 #
@@ -38,7 +37,7 @@ def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 3
 
     sl.add_evidence(symbol=symbol, sd=sd, ed=ed, sv=100000)
 
-    trades = sl.test_policy(symbol=symbol, sd=sd, ed=ed, sv=100000)
+    trades = sl.testPolicy(symbol=symbol, sd=sd, ed=ed, sv=100000)
     trades['Symbol'] = symbol
     trades['Order'] = 'BUY'
 
@@ -76,8 +75,8 @@ def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 3
     strategy_adr = strategy_portval.pct_change(1).mean()['Strategy Learner PortVal']
     strategy_sddr = strategy_portval.pct_change(1).std()['Strategy Learner PortVal']
     strategy_sr = math.sqrt(252.0) * (strategy_adr / float(strategy_sddr))
-
-    print("In Sample")
+    print("==============================================================")
+    print("In Sample - exp1")
 
     print("Date Range: {} to {}".format(sd, ed))
 
@@ -96,12 +95,14 @@ def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 3
     print("Number of Trades for Strategy: {}".format(strategy_trades))
     print("Number of Trades for Manual: {}".format(manual_trades))
 
+
 def author():
     """
     :return: The GT username of the student
     :rtype: str
     """
     return "alata6"  # replace tb34 with your Georgia Tech username
+
 
 #
 def exp1():
