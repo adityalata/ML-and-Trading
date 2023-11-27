@@ -1,99 +1,52 @@
-"""
-    Experiment 1
-
-    Usage:
-    - Point the terminal location to this directory
-    - Run the command `PYTHONPATH=../:. python experiment1.py`
-"""
-
 import datetime as dt
-import math
-
-import matplotlib.pyplot as plt
-import pandas as pd
 
 from ManualStrategy import ManualStrategy
 from StrategyLearner import StrategyLearner
-from marketsimcode import compute_portvals
+from marketsimcode import compute_portvals, print_portfolio_comparison_stats
 
 
 #
-def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31), impact=0.0):
-    ms = ManualStrategy()
-    sl = StrategyLearner(impact=0.002)
+def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31), impact=0.0, train=False,
+            graphTitle="Exp. 1: Strategy Learner vs. & Manual Strategy (In-Sample) - alata6",
+            figureName="exp1 In Sample Manual vs Strategy Learner.png",
+            title='exp1 In Sample Manual vs Strategy Learner'):
+    manual_strategy = ManualStrategy()
+    manual_trades = manual_strategy.test_policy(symbol, sd=sd, ed=ed)
+    manual_trades_count = 0
 
-    manual_orders = ms.test_policy(symbol, sd=sd, ed=ed)
-    manual_trades = 0
-
-    for date, row in manual_orders.iterrows():
+    for date, row in manual_trades.iterrows():
         if row['Shares'] != 0:
-            manual_trades += 1
+            manual_trades_count += 1
 
-    manual = compute_portvals(manual_orders, start_val=100000, commission=0.0, impact=impact)
-    manual_portval = manual.to_frame(name='Manual Strategy PortVal')
-    manual_portval /= manual_portval.iloc[0]
+    manual = compute_portvals(manual_trades, start_val=100000, commission=0.0, impact=impact)
+    manual_portfolio_values = manual.to_frame(name='Manual Strategy PortVal')
+    manual_portfolio_values /= manual_portfolio_values.iloc[0]
 
     ##########################
+    strategy_learner = StrategyLearner(impact=0.002)
+    if train:
+        strategy_learner.add_evidence(symbol=symbol, sd=sd, ed=ed, sv=100000)
+    strategy_learner_trades = strategy_learner.testPolicy(symbol=symbol, sd=sd, ed=ed, sv=100000)
+    strategy_learner_trades['Symbol'] = symbol
+    strategy_learner_trades['Order'] = 'BUY'
+    strategy_trades_count = 0
 
-    sl.add_evidence(symbol=symbol, sd=sd, ed=ed, sv=100000)
-
-    trades = sl.testPolicy(symbol=symbol, sd=sd, ed=ed, sv=100000)
-    trades['Symbol'] = symbol
-    trades['Order'] = 'BUY'
-
-    strategy_trades = 0
-
-    for date, row in trades.iterrows():
+    for date, row in strategy_learner_trades.iterrows():
         if row['Shares'] == -1000:
-            trades.at[date, 'Order'] = 'SELL'
-
+            strategy_learner_trades.at[date, 'Order'] = 'SELL'
         if row['Shares'] != 0:
-            strategy_trades += 1
+            strategy_trades_count += 1
 
-    strategy = compute_portvals(trades, start_val=100000, commission=0.0, impact=impact)
-
-    strategy_portval = strategy.to_frame(name='Strategy Learner PortVal')
-    strategy_portval /= strategy_portval.iloc[0]
-
-    portval_df = pd.concat([strategy_portval, manual_portval], axis=1)
-
-    portval_graph = portval_df.plot(title="Exp. 1: Strategy Learner vs. & Manual Strategy (In-Sample)", fontsize=12,
-                                    grid=True, color=['blue', 'black'])
-    portval_graph.set_xlabel("Date")
-    portval_graph.set_ylabel("Normalized Portfolio Value ($)")
-
-    plt.savefig("Figure_1.png")
-
-    manual_cr = (manual_portval.iloc[-1].at['Manual Strategy PortVal'] / manual_portval.iloc[0].at[
-        'Manual Strategy PortVal']) - 1
-    manual_adr = manual_portval.pct_change(1).mean()['Manual Strategy PortVal']
-    manual_sddr = manual_portval.pct_change(1).std()['Manual Strategy PortVal']
-    manual_sr = math.sqrt(252.0) * (manual_adr / float(manual_sddr))
-
-    strategy_cr = (strategy_portval.iloc[-1].at['Strategy Learner PortVal'] / strategy_portval.iloc[0].at[
-        'Strategy Learner PortVal']) - 1
-    strategy_adr = strategy_portval.pct_change(1).mean()['Strategy Learner PortVal']
-    strategy_sddr = strategy_portval.pct_change(1).std()['Strategy Learner PortVal']
-    strategy_sr = math.sqrt(252.0) * (strategy_adr / float(strategy_sddr))
-    print("==============================================================")
-    print("In Sample - exp1")
-
-    print("Date Range: {} to {}".format(sd, ed))
-
-    print("Cumulative Return of Strategy: {}".format(strategy_cr))
-    print("Cumulative Return of Manual: {}".format(manual_cr))
-
-    print("Standard Deviation of Strategy: {}".format(strategy_sddr))
-    print("Standard Deviation of Manual: {}".format(manual_sddr))
-
-    print("Average Daily Return of Strategy: {}".format(strategy_adr))
-    print("Average Daily Return of Manual: {}".format(manual_adr))
-
-    print("Sharpe Ratio of Strategy: {}".format(strategy_sr))
-    print("Sharpe Ratio of Manual: {}".format(manual_sr))
-
-    print("Number of Trades for Strategy: {}".format(strategy_trades))
-    print("Number of Trades for Manual: {}".format(manual_trades))
+    strategy = compute_portvals(strategy_learner_trades, start_val=100000, commission=0.0, impact=impact)
+    strategy_portfolio_values = strategy.to_frame(name='Strategy Learner PortVal')
+    strategy_portfolio_values /= strategy_portfolio_values.iloc[0]
+    print_portfolio_comparison_stats(portfolio1=strategy_portfolio_values, portfolio1Name='Strategy Learner PortVal',
+                                     portfolio2=manual_portfolio_values,
+                                     portfolio2Name='Manual Strategy PortVal'
+                                     , graphTitle=graphTitle,
+                                     figureName=figureName,
+                                     title=title, sd=sd,
+                                     ed=ed)
 
 
 def author():
@@ -106,4 +59,10 @@ def author():
 
 #
 def exp1():
-    compare()
+    compare(train=True)
+    # Out of Sample Comparison - Manual Strategy vs Benchmark
+    sd = dt.datetime(2010, 1, 1)
+    ed = dt.datetime(2011, 12, 31)
+    compare(sd=sd, ed=ed, graphTitle="Exp. 1: Strategy Learner vs. & Manual Strategy (Out-Of-Sample) - alata6",
+            figureName="exp1 Out of Sample Manual vs Strategy Learner.png",
+            title='exp1 Out of Sample Manual vs Strategy Learner')

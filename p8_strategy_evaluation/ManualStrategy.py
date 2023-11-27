@@ -1,11 +1,9 @@
 import datetime as dt
-import math
 
-import matplotlib.pyplot as plt
 import pandas as pd
 
 from indicators import simple_moving_average, moving_avg_convergence_divergence, bollinger_band_percentage
-from marketsimcode import compute_portvals
+from marketsimcode import compute_portvals, print_portfolio_comparison_stats
 from util import get_data
 
 LOOKBACK_MANUAL = 14
@@ -154,35 +152,9 @@ class ManualStrategy(object):
         manual_portfolio_value = compute_portvals(manual_trades, start_val=start_val)
         manual_portfolio_value = manual_portfolio_value.to_frame(name='Manual Strategy PortVal')
         manual_portfolio_value /= manual_portfolio_value.iloc[0]
-        combined_portfolio_value = pd.concat([benchmark_portfolio_value, manual_portfolio_value], axis=1)
-        combined_portfolio_values_graph = combined_portfolio_value.plot(title=graphTitle,
-                                                                        fontsize=12,
-                                                                        grid=True, color=['blue', 'black'])
-        combined_portfolio_values_graph.set_xlabel("Timeline")
-        combined_portfolio_values_graph.set_ylabel("Normalized Portfolio Values ($)")
-        plt.vlines(self.long_trades_dates, 1.0, 1.2, color='g')
-        plt.vlines(self.short_trades_dates, 1.0, 1.2, color='r')
-        plt.savefig(figureName)
-        manual_cumulative_return = (manual_portfolio_value.iloc[-1].at['Manual Strategy PortVal'] /
-                                    manual_portfolio_value.iloc[0].at[
-                                        'Manual Strategy PortVal']) - 1
-        manual_average_daily_return = manual_portfolio_value.pct_change(1).mean()['Manual Strategy PortVal']
-        manual_standard_deviation = manual_portfolio_value.pct_change(1).std()['Manual Strategy PortVal']
-        manual_sharpe_ratio = math.sqrt(252.0) * (manual_average_daily_return / manual_standard_deviation)
-        benchmark_cumulative_return = (benchmark_portfolio_value.iloc[-1].at['Benchmark PortVal'] /
-                                       benchmark_portfolio_value.iloc[0].at[
-                                           'Benchmark PortVal']) - 1
-        benchmark_average_daily_return = benchmark_portfolio_value.pct_change(1).mean()['Benchmark PortVal']
-        benchmark_standard_deviation = benchmark_portfolio_value.pct_change(1).std()['Benchmark PortVal']
-        benchmark_sharpe_ratio = math.sqrt(252.0) * (benchmark_average_daily_return / benchmark_standard_deviation)
-        print("======================================================================")
-        print(title)
-        print("Date Range: {} to {}".format(sd, ed))
-        print("Cumulative Return of Benchmark: {}".format(benchmark_cumulative_return))
-        print("Cumulative Return of Manual: {}".format(manual_cumulative_return))
-        print("Standard Deviation of Benchmark: {}".format(benchmark_standard_deviation))
-        print("Standard Deviation of Manual: {}".format(manual_standard_deviation))
-        print("Average Daily Return of Benchmark: {}".format(benchmark_average_daily_return))
-        print("Average Daily Return of Manual: {}".format(manual_average_daily_return))
-        print("Sharpe Ratio of Benchmark: {}".format(benchmark_sharpe_ratio))
-        print("Sharpe Ratio of Manual: {}".format(manual_sharpe_ratio))
+        print_portfolio_comparison_stats(portfolio1=benchmark_portfolio_value, portfolio1Name="Benchmark PortVal",
+                                         portfolio2=manual_portfolio_value,
+                                         portfolio2Name='Manual Strategy PortVal'
+                                         , graphTitle=graphTitle, figureName=figureName, title=title, sd=sd, ed=ed,
+                                         long_trades_dates=self.long_trades_dates,
+                                         short_trades_dates=self.short_trades_dates)
