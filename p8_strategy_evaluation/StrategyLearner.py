@@ -35,6 +35,8 @@ import util as ut
 from QLearner import QLearner
 from indicators import simple_moving_average, bollinger_band_percentage, moving_avg_convergence_divergence
 
+LOOKBACK_DAYS = 50
+
 
 def author():
     """
@@ -42,6 +44,7 @@ def author():
     :rtype: str
     """
     return "alata6"  # replace tb34 with your Georgia Tech username
+
 
 class StrategyLearner(object):
     """  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -95,100 +98,77 @@ class StrategyLearner(object):
         """
 
         # add your code to do learning here
-        syms = [symbol]
-        dates = pd.date_range(sd - datetime.timedelta(days=50), ed)  # account for lookback for indicators #todo const
-        prices = ut.get_data(syms, dates).drop(['SPY'], axis=1)
+        symbol_list = [symbol]
+        dates = pd.date_range(sd - datetime.timedelta(days=LOOKBACK_DAYS), ed)
+        prices = ut.get_data(symbol_list, dates).drop(['SPY'], axis=1)
 
         if self.verbose:
-            print(prices)
+            print('prices with lookback', prices)
 
-        # get indicator dataframes
-        indicator_tuple = self.getindicators(prices, symbol, sd)
-        sma_df = indicator_tuple[0]
-        bbp_df = indicator_tuple[1]
-        macd_df = indicator_tuple[2]
+        # fetching indicators
+        indicators = self.fetch_indicators_tuple(prices, symbol, sd)
+        simple_moving_average_df = indicators[0]
+        bollinger_band_percentage_df = indicators[1]
+        moving_avg_convergence_divergence_df = indicators[2]
 
-        # adjust price dataframes and capture daily returns
+        # evaluating daily returns
         prices = prices[sd:]
-        daily_ret, port_val = self.stats(prices, symbol, sv)
+        daily_return, portfolio_value = self.compute_dailyret_portval(prices, symbol, sv)
 
-        # combine data into overall dataframe
-        combined_df = prices.copy()
-        combined_df["SMA"] = sma_df[symbol]
-        combined_df["BB %"] = bbp_df["Bollinger Band %"]
-        combined_df["MACD"] = macd_df["MACD"]
-        combined_df["Portfolio"] = port_val
-        combined_df["Daily Return"] = daily_ret
+        # summarizing results
+        summary_data = prices.copy()
+        summary_data["SMA"] = simple_moving_average_df[symbol]
+        summary_data["BB %"] = bollinger_band_percentage_df["Bollinger Band %"]
+        summary_data["MACD"] = moving_avg_convergence_divergence_df["MACD"]
+        summary_data["Portfolio"] = portfolio_value
+        summary_data["Daily Return"] = daily_return
 
-        # discretize into bins
-        sma_bins = self.discretize(combined_df["SMA"])
-        bb_bins = self.discretize(combined_df["BB %"])
-        macd_bins = self.discretize(combined_df["MACD"])
-        self.state_train = (sma_bins * 100) + (bb_bins * 10) + macd_bins
+        # binning
+        simple_moving_average_bins = self.quantile_discretize(summary_data["SMA"])
+        bollinger_band_bins = self.quantile_discretize(summary_data["BB %"])
+        moving_avg_convergence_divergence_bins = self.quantile_discretize(summary_data["MACD"])
+        self.state_train = (simple_moving_average_bins * 100) + (
+                bollinger_band_bins * 10) + moving_avg_convergence_divergence_bins
 
-        # build model
-        iterations = 0
+        # building model
+        count = 0
+        orders = prices.copy()
+        orders['Shares'] = 0
+        orders.drop([symbol], axis=1, inplace=True)
 
-        trades = prices.copy()
-        trades['Shares'] = 0
-        trades.drop([symbol], axis=1, inplace=True)
-
-        while iterations < 400:
-            trades_copy = trades.copy()
-            net_holdings = 0
-
+        while count < 400:
+            updated_order = orders.copy()
+            total_holdings = 0
             self.qLearner.querysetstate(self.state_train.iloc[0])
 
-            for date, row in combined_df.iterrows():
-                r = combined_df.at[date, "Daily Return"] - (net_holdings * self.impact)  # account for impact
-                a = self.qLearner.query(int(self.state_train[date]), r)
+            for date, row in summary_data.iterrows():
+                returns = summary_data.at[date, "Daily Return"] - (total_holdings * self.impact)
+                action = self.qLearner.query(int(self.state_train[date]), returns)
 
-                if a == 0:  # long
-                    if net_holdings == 0:  # long
-                        trades_copy.at[date, 'Shares'] = 1000
-                        net_holdings += 1000
+                if action == 0:  # buy
+                    if total_holdings == 0:  # long
+                        updated_order.at[date, 'Shares'] = 1000
+                        total_holdings += 1000
+                    elif total_holdings == -1000:  # todo 2000?
+                        updated_order.at[date, 'Shares'] = 1000
+                        total_holdings += 1000
 
-                    elif net_holdings == -1000:  # leave position
-                        trades_copy.at[date, 'Shares'] = 1000
-                        net_holdings += 1000
+                elif action == 1:  # sell
+                    if total_holdings == 0:  # short
+                        updated_order.at[date, 'Shares'] = -1000
+                        total_holdings -= 1000
+                    elif total_holdings == 1000:  # todo 2000?
+                        updated_order.at[date, 'Shares'] = -1000
+                        total_holdings -= 1000
 
-                elif a == 1:  # short
-                    if net_holdings == 0:  # short
-                        trades_copy.at[date, 'Shares'] = -1000
-                        net_holdings -= 1000
-
-                    elif net_holdings == 1000:  # leave position
-                        trades_copy.at[date, 'Shares'] = -1000
-                        net_holdings -= 1000
-
-            if iterations > 10 and trades_copy.equals(trades):  # converged -> current and previous trades are equal
+            if count > 10 and updated_order.equals(orders):  # checking for convergence
                 break
 
-            trades = trades_copy.copy()  # update trades
-            iterations += 1
+            orders = updated_order.copy()  # updating orders
+            count += 1
 
-        self.trades = trades
+        self.trades = orders
 
-        # # example usage of the old backward compatible util function
-        # syms = [symbol]
-        # dates = pd.date_range(sd, ed)
-        # prices_all = ut.get_data(syms, dates)  # automatically adds SPY
-        # prices = prices_all[syms]  # only portfolio symbols
-        # prices_SPY = prices_all["SPY"]  # only SPY, for comparison later
-        # if self.verbose:
-        #     print(prices)
-
-    #
-    # # example use with new colname
-    # volume_all = ut.get_data(
-    #     syms, dates, colname="Volume"
-    # )  # automatically adds SPY
-    # volume = volume_all[syms]  # only portfolio symbols
-    # volume_SPY = volume_all["SPY"]  # only SPY, for comparison later
-    # if self.verbose:
-    #     print(volume)
-
-    # this method should use the existing policy and test it against new data  		  	   		  		 		  		  		    	 		 		   		 		  
     def testPolicy(
             self,
             symbol="IBM",
@@ -197,9 +177,9 @@ class StrategyLearner(object):
             sv=10000,
     ):
         """  		  	   		  		 		  		  		    	 		 		   		 		  
-        Tests your learner using data outside of the training data  		  	   		  		 		  		  		    	 		 		   		 		  
+        Tests your learner using data outside the training data
   		  	   		  		 		  		  		    	 		 		   		 		  
-        :param symbol: The stock symbol that you trained on on  		  	   		  		 		  		  		    	 		 		   		 		  
+        :param symbol: The stock symbol that you trained on
         :type symbol: str  		  	   		  		 		  		  		    	 		 		   		 		  
         :param sd: A datetime object that represents the start date, defaults to 1/1/2008  		  	   		  		 		  		  		    	 		 		   		 		  
         :type sd: datetime  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -213,117 +193,97 @@ class StrategyLearner(object):
             long so long as net holdings are constrained to -1000, 0, and 1000.  		  	   		  		 		  		  		    	 		 		   		 		  
         :rtype: pandas.DataFrame  		  	   		  		 		  		  		    	 		 		   		 		  
         """
-
-        # here we build a fake set of trades  		  	   		  		 		  		  		    	 		 		   		 		  
-        # your code should return the same sort of data  		  	   		  		 		  		  		    	 		 		   		 		  
-        # dates = pd.date_range(sd, ed)
-        # prices_all = ut.get_data([symbol], dates)  # automatically adds SPY
-        # trades = prices_all[[symbol,]]  # only portfolio symbols
-        # trades_SPY = prices_all["SPY"]  # only SPY, for comparison later
-        # trades.values[:, :] = 0  # set them all to nothing
-        # trades.values[0, :] = 1000  # add a BUY at the start
-        # trades.values[40, :] = -1000  # add a SELL
-        # trades.values[41, :] = 1000  # add a BUY
-        # trades.values[60, :] = -2000  # go short from long
-        # trades.values[61, :] = 2000  # go long from short
-        # trades.values[-1, :] = -1000  # exit on the last day
-        # if self.verbose:
-        #     print(type(trades))  # it better be a DataFrame!
-        # if self.verbose:
-        #     print(trades)
-        # if self.verbose:
-        #     print(prices_all)
-        # return trades
-        syms = [symbol]
-        dates = pd.date_range(sd - datetime.timedelta(days=50), ed)  # account for MACD lookback period
-        prices = ut.get_data(syms, dates).drop(['SPY'], axis=1)
+        symbols_list = [symbol]
+        dates = pd.date_range(sd - datetime.timedelta(days=LOOKBACK_DAYS),
+                              ed)
+        prices = ut.get_data(symbols_list, dates).drop(['SPY'], axis=1)
 
         if self.verbose:
-            print(prices)
+            print('prices with lookback', prices)
 
-        # get indicator dataframes
-        indicator_tuple = self.getindicators(prices, symbol, sd)
-        sma_df = indicator_tuple[0]
-        bbp_df = indicator_tuple[1]
-        macd_df = indicator_tuple[2]
+        # fetching indicators
+        indicators = self.fetch_indicators_tuple(prices, symbol, sd)
+        simple_moving_average_df = indicators[0]
+        bollinger_band_percentage_df = indicators[1]
+        moving_avg_convergence_divergence_df = indicators[2]
 
-        # adjust price dataframes and capture daily returns
+        # evaluating daily returns
         prices = prices[sd:]
-        daily_ret, port_val = self.stats(prices, symbol, sv)
+        daily_return, portfolio_value = self.compute_dailyret_portval(prices, symbol, sv)
 
-        # combine data into overall dataframe
-        combined_df = prices.copy()
-        combined_df["SMA"] = sma_df[symbol]
-        combined_df["BB %"] = bbp_df["Bollinger Band %"]
-        combined_df["MACD"] = macd_df["MACD"]
-        combined_df["Portfolio"] = port_val
-        combined_df["Daily Return"] = daily_ret
+        # summarizing results
+        summary_data = prices.copy()
+        summary_data["SMA"] = simple_moving_average_df[symbol]
+        summary_data["BB %"] = bollinger_band_percentage_df["Bollinger Band %"]
+        summary_data["MACD"] = moving_avg_convergence_divergence_df["MACD"]
+        summary_data["Portfolio"] = portfolio_value
+        summary_data["Daily Return"] = daily_return
 
-        # discretize into bins
-        sma_bins = self.discretize(combined_df["SMA"])
-        bb_bins = self.discretize(combined_df["BB %"])
-        macd_bins = self.discretize(combined_df["MACD"])
-        self.state_train = (sma_bins * 100) + (bb_bins * 10) + macd_bins
+        # binning
+        simple_moving_average_bins = self.quantile_discretize(summary_data["SMA"])
+        bollinger_band_bins = self.quantile_discretize(summary_data["BB %"])
+        moving_avg_convergence_divergence_bins = self.quantile_discretize(summary_data["MACD"])
+        self.state_train = (simple_moving_average_bins * 100) + (
+                bollinger_band_bins * 10) + moving_avg_convergence_divergence_bins
 
         # test model
-        trades = prices.copy()
-        trades['Shares'] = 0
-        trades.drop([symbol], axis=1, inplace=True)
+        orders = prices.copy()
+        orders['Shares'] = 0
+        orders.drop([symbol], axis=1, inplace=True)
+        total_holdings = 0
 
-        net_holdings = 0
+        for date, row in summary_data.iterrows():
+            action = self.qLearner.querysetstate(int(self.state_train[date]))
 
-        for date, row in combined_df.iterrows():
-            a = self.qLearner.querysetstate(int(self.state_train[date]))
+            if action == 0:  # buy
+                if total_holdings == 0:  # long
+                    orders.at[date, 'Shares'] = 1000
+                    total_holdings += 1000
+                elif total_holdings == -1000:  # todo test 2000
+                    orders.at[date, 'Shares'] = 1000
+                    total_holdings += 1000
 
-            if a == 0:  # long
-                if net_holdings == 0:  # long
-                    trades.at[date, 'Shares'] = 1000
-                    net_holdings += 1000
+            elif action == 1:  # sell
+                if total_holdings == 0:  # short
+                    orders.at[date, 'Shares'] = -1000
+                    total_holdings -= 1000
+                elif total_holdings == 1000:  # todo test 2000
+                    orders.at[date, 'Shares'] = -1000
+                    total_holdings -= 1000
 
-                elif net_holdings == -1000:  # leave position
-                    trades.at[date, 'Shares'] = 1000
-                    net_holdings += 1000
-
-            elif a == 1:  # short
-                if net_holdings == 0:  # short
-                    trades.at[date, 'Shares'] = -1000
-                    net_holdings -= 1000
-
-                elif net_holdings == 1000:  # leave position
-                    trades.at[date, 'Shares'] = -1000
-                    net_holdings -= 1000
-
-        return trades
+        return orders
 
         #
 
-    def discretize(self, indicator):
+    """
+     Quantile-based discretization function. Discretize variable into equal-sized buckets based on rank or based on sample quantiles. 
+     For example 1000 values for 10 quantiles would produce a Categorical object indicating quantile membership for each data point.
+    """
+
+    def quantile_discretize(self, indicator):
         return pd.qcut(indicator, 10, labels=False, retbins=True)[0]
 
-    def stats(self, prices, symbol, sv):
-        normalize = prices.copy()
-        normalize[symbol] = prices[symbol] / float(prices[symbol][0])
+    def compute_dailyret_portval(self, prices, symbol, sv):
+        symbol_price = prices.copy()
+        symbol_price[symbol] = prices[symbol] / float(prices[symbol][0])
+        portfolio_value = symbol_price.sum(axis=1)
+        daily_return = portfolio_value.pct_change(1)
+        daily_return.iloc[0] = 0
+        portfolio_value *= sv
+        return daily_return, portfolio_value
 
-        port_val = normalize.sum(axis=1)
-        daily_ret = port_val.pct_change(1)
+    def fetch_indicators_tuple(self, prices, symbol, sd):
+        simple_moving_average_tuple = simple_moving_average(prices=prices, lookback=14, symbol=symbol,
+                                                            generate_plot=False)
+        bollinger_band_tuple = bollinger_band_percentage(prices=prices, lookback=14, symbol=symbol,
+                                                         generate_plot=False)
 
-        daily_ret.iloc[0] = 0
-        port_val *= sv
+        simple_moving_average_df = simple_moving_average_tuple[0][sd:]
+        bollinger_band_percentage_df = bollinger_band_tuple[1][sd:]
+        moving_avg_convergence_divergence_df = moving_avg_convergence_divergence(prices=prices, symbol=symbol,
+                                                                                 generate_plot=False)[sd:]
 
-        return daily_ret, port_val
-
-        #
-
-    def getindicators(self, prices, symbol, sd):
-        sma_tuple = simple_moving_average(prices=prices, lookback=14, symbol=symbol, generate_plot=False)
-        bb_tuple = bollinger_band_percentage(prices=prices, lookback=14, symbol=symbol,
-                                             generate_plot=False)
-
-        sma_df = sma_tuple[0][sd:]
-        bbp_df = bb_tuple[1][sd:]
-        macd_df = moving_avg_convergence_divergence(prices=prices, symbol=symbol, generate_plot=False)[sd:]
-
-        return sma_df, bbp_df, macd_df
+        return simple_moving_average_df, bollinger_band_percentage_df, moving_avg_convergence_divergence_df
 
 
 if __name__ == "__main__":
