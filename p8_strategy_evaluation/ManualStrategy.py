@@ -8,7 +8,7 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from indicators import simple_moving_average, moving_avg_convergence_divergence, bollinger_band_percentage
+from indicators import sma, bbp, macd
 from marketsimcode import compute_portvals
 from util import get_data
 
@@ -35,10 +35,9 @@ class ManualStrategy(object):
         dates = pd.date_range(sd, ed)
         prices = get_data([symbol], dates).drop(['SPY'], axis=1)
 
-        _, sma_df = simple_moving_average(prices=prices, lookback=lookback, symbol=symbol, generate_plot=False)
-        bb_df, bbp_df = bollinger_band_percentage(prices=prices, lookback=lookback, symbol=symbol,
-                                                  generate_plot=False)
-        macd_df = moving_avg_convergence_divergence(prices=prices, symbol=symbol, generate_plot=False)
+        _, sma_df = sma(prices, lookback, symbol, False)
+        bb_df, bbp_df = bbp(prices, lookback, symbol, False)
+        macd_df = macd(prices, symbol, False)
 
         manual_orders = prices.copy()
         manual_orders[symbol] = symbol

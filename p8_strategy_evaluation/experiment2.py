@@ -8,7 +8,6 @@ from StrategyLearner import StrategyLearner
 from marketsimcode import compute_portvals
 
 
-#
 def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31), impact=0.0):
     sl = StrategyLearner(impact=impact)
     sl.add_evidence(symbol=symbol, sd=sd, ed=ed, sv=100000)
