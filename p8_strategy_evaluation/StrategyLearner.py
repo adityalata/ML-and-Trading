@@ -36,6 +36,13 @@ from QLearner import QLearner
 from indicators import simple_moving_average, bollinger_band_percentage, moving_avg_convergence_divergence
 
 
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
 class StrategyLearner(object):
     """  		  	   		  		 		  		  		    	 		 		   		 		  
     A strategy learner that can learn a trading policy using the same indicators used in ManualStrategy.  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -58,6 +65,13 @@ class StrategyLearner(object):
         self.impact = impact
         self.commission = commission
         self.qLearner = QLearner(num_states=1000, num_actions=3, rar=0.0)
+
+    def author(self):
+        """
+        :return: The GT username of the student
+        :rtype: str
+        """
+        return "alata6"  # replace tb34 with your Georgia Tech username
 
     # this method should create a QLearner, and train it for trading  		  	   		  		 		  		  		    	 		 		   		 		  
     def add_evidence(

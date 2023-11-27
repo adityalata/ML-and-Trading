@@ -96,6 +96,12 @@ def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 3
     print("Number of Trades for Strategy: {}".format(strategy_trades))
     print("Number of Trades for Manual: {}".format(manual_trades))
 
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
 
 #
 def exp1():

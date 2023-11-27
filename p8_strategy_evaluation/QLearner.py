@@ -39,6 +39,13 @@ def gtid():
     """
     return 903952381  # replace with your GT ID number
 
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
 
 class QLearner(object):
     """

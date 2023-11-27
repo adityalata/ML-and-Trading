@@ -8,6 +8,14 @@ from StrategyLearner import StrategyLearner
 from marketsimcode import compute_portvals
 
 
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
+
 #
 def compare(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31), impact=0.0):
     sl = StrategyLearner(impact=impact)

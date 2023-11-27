@@ -13,6 +13,13 @@ from marketsimcode import compute_portvals
 from util import get_data
 
 
+def author():
+    """
+    :return: The GT username of the student
+    :rtype: str
+    """
+    return "alata6"  # replace tb34 with your Georgia Tech username
+
 #
 class ManualStrategy(object):
     """
@@ -23,6 +30,13 @@ class ManualStrategy(object):
     def __init__(self):
         self.long = []
         self.short = []
+
+    def author(self):
+        """
+        :return: The GT username of the student
+        :rtype: str
+        """
+        return "alata6"  # replace tb34 with your Georgia Tech username
 
     #
     def test_policy(self, symbol='AAPL', sd=dt.datetime(2010, 1, 1), ed=dt.datetime(2011, 12, 31), sv=100000):
