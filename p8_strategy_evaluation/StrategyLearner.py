@@ -33,8 +33,8 @@ import pandas as pd
 
 import util as ut
 from QLearner import QLearner
-# from indicators import simple_moving_average, bollinger_band_percentage, moving_avg_convergence_divergence
-from indicators import sma,bbp,macd
+from indicators import simple_moving_average, bollinger_band_percentage, moving_avg_convergence_divergence
+
 
 class StrategyLearner(object):
     """  		  	   		  		 		  		  		    	 		 		   		 		  
@@ -301,12 +301,13 @@ class StrategyLearner(object):
         #
 
     def getindicators(self, prices, symbol, sd):
-        sma_tuple = sma(prices, 14, symbol, False)
-        bb_tuple = bbp(prices, 14, symbol, False)
+        sma_tuple = simple_moving_average(prices=prices, lookback=14, symbol=symbol, generate_plot=False)
+        bb_tuple = bollinger_band_percentage(prices=prices, lookback=14, symbol=symbol,
+                                             generate_plot=False)
 
         sma_df = sma_tuple[0][sd:]
         bbp_df = bb_tuple[1][sd:]
-        macd_df = macd(prices, symbol, False)[sd:]
+        macd_df = moving_avg_convergence_divergence(prices=prices, symbol=symbol, generate_plot=False)[sd:]
 
         return sma_df, bbp_df, macd_df
 

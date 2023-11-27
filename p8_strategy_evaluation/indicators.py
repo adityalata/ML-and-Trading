@@ -94,7 +94,7 @@ def author():
 #
 #     return moving_avg_convergence_divergence_df
 
-def sma(prices, lookback, symbol, make_plot):
+def simple_moving_average(prices, lookback, symbol, generate_plot):
     sma_df = prices.rolling(window=lookback, min_periods=lookback).mean()
     sma_normalized = sma_df.copy()
 
@@ -103,7 +103,7 @@ def sma(prices, lookback, symbol, make_plot):
     sma_normalized['Prices'] = prices / prices.iloc[0] # normalize for easier comparison
     sma_normalized['Price/SMA'] = sma_normalized['Prices'] / sma_normalized['SMA_' + symbol]
 
-    if make_plot:
+    if generate_plot:
         sma_graph = sma_normalized.plot(title='Simple Moving Average (Normalized) for ' + symbol, fontsize=12, grid=True)
         sma_graph.set_xlabel('Date')
         sma_graph.set_ylabel('Normalized $ Value')
@@ -113,8 +113,8 @@ def sma(prices, lookback, symbol, make_plot):
     return sma_df, sma_normalized
 
 #
-def bbp(prices, lookback, symbol, make_plot):
-    sma_df, _ = sma(prices, lookback, symbol, False)
+def bollinger_band_percentage(prices, lookback, symbol, generate_plot):
+    sma_df, _ = simple_moving_average(prices, lookback, symbol, False)
 
     rolling_std = prices.rolling(window=lookback, min_periods=lookback).std()
     top_band = sma_df + (2 * rolling_std)
@@ -131,7 +131,7 @@ def bbp(prices, lookback, symbol, make_plot):
     bb_df['Upper Band'] = top_band
     bb_df['Lower Band'] = bottom_band
 
-    if make_plot:
+    if generate_plot:
         figure, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True)
         bb_df.plot(ax=ax1, fontsize=12, grid=True) # bollinger band subplot
         bbp_df.plot(ax=ax2, fontsize=12, grid=True) # bollinger band percentage subplot
@@ -150,7 +150,7 @@ def bbp(prices, lookback, symbol, make_plot):
     return bb_df, bbp_df
 
 #
-def macd(prices, symbol, make_plot):
+def moving_avg_convergence_divergence(prices, symbol, generate_plot):
     ema_26 = prices.ewm(span=26, min_periods=26, adjust=False).mean()
     ema_12 = prices.ewm(span=12, min_periods=12, adjust=False).mean()
 
@@ -159,7 +159,7 @@ def macd(prices, symbol, make_plot):
     ema_9 = macd_df.ewm(span=9, min_periods=1, adjust=False).mean() # ema of macd graph (signal line)
     macd_df['Signal Line'] = ema_9
 
-    if make_plot:
+    if generate_plot:
         macd_graph = macd_df.plot(title='Moving Average Convergence Divergence for ' + symbol, fontsize=12, grid=True)
         macd_graph.set_xlabel('Date')
         macd_graph.set_ylabel('Normalized $ Value')
